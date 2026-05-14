@@ -10,58 +10,74 @@ const html = String.raw`<!doctype html>
   <style>
     :root {
       color-scheme: light;
-      --ink: #17211d;
-      --muted: #68726f;
-      --line: #dce5df;
-      --paper: #fbfcf8;
+      --ink: #16201f;
+      --muted: #5d6a67;
+      --line: #d9e1df;
+      --paper: #f6f7f3;
       --panel: #ffffff;
-      --brand: #146b4f;
-      --brand-2: #e7b64b;
-      --brand-3: #2f6f9f;
-      --danger: #b94a48;
-      --shadow: 0 20px 60px rgba(24, 40, 35, .12);
+      --brand: #0f6b57;
+      --brand-strong: #0a4539;
+      --brand-2: #f0b23e;
+      --brand-3: #315f83;
+      --danger: #a43d35;
+      --danger-soft: #fff0ed;
+      --ok-soft: #e9f7ef;
+      --shadow: 0 18px 48px rgba(22, 32, 31, .13);
+      --shadow-sm: 0 8px 24px rgba(22, 32, 31, .08);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--paper); color: var(--ink); }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.5; }
     button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; border: 0; }
+    button { cursor: pointer; border: 0; touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid rgba(240, 178, 62, .72); outline-offset: 3px; }
     a { color: inherit; text-decoration: none; }
+    .skip { position: fixed; left: 16px; top: 12px; z-index: 100; transform: translateY(-140%); background: white; color: var(--brand-strong); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; box-shadow: var(--shadow-sm); }
+    .skip:focus { transform: translateY(0); }
     .shell { min-height: 100vh; }
-    .nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px clamp(18px, 4vw, 64px); background: rgba(251, 252, 248, .88); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(220,229,223,.8); }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .02em; }
-    .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--brand), #45a777); color: white; display: grid; place-items: center; font-weight: 900; }
+    .nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px clamp(18px, 4vw, 64px); background: rgba(246, 247, 243, .9); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(217,225,223,.82); }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .01em; }
+    .logo { width: 36px; height: 36px; border-radius: 8px; background: var(--brand-strong); color: white; display: grid; place-items: center; font-weight: 900; box-shadow: inset 0 -3px 0 rgba(255,255,255,.1); }
     .nav-actions { display: flex; gap: 10px; align-items: center; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 16px; border-radius: 8px; font-weight: 750; background: #edf3ee; color: var(--ink); border: 1px solid transparent; }
-    .btn.primary { background: var(--brand); color: white; box-shadow: 0 12px 30px rgba(20,107,79,.22); }
-    .btn.ghost { background: transparent; border-color: var(--line); }
-    .btn.warn { background: #fff6df; color: #7a5512; }
-    .hero { display: grid; grid-template-columns: minmax(0, 1.03fr) minmax(340px, .97fr); gap: clamp(28px, 5vw, 78px); align-items: center; padding: clamp(38px, 7vw, 92px) clamp(18px, 4vw, 64px) 42px; }
-    .eyebrow { color: var(--brand); font-weight: 850; text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
-    h1 { margin: 14px 0 18px; font-size: clamp(42px, 7vw, 84px); line-height: .94; letter-spacing: 0; max-width: 820px; }
-    .lead { color: var(--muted); font-size: clamp(18px, 2vw, 22px); line-height: 1.55; max-width: 680px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 17px; border-radius: 8px; font-weight: 800; background: #e8efeb; color: var(--ink); border: 1px solid transparent; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); box-shadow: none; }
+    .btn.primary { background: var(--brand); color: white; box-shadow: 0 12px 28px rgba(15,107,87,.24); }
+    .btn.primary:hover { background: var(--brand-strong); }
+    .btn.ghost { background: rgba(255,255,255,.64); border-color: var(--line); }
+    .btn.warn { background: var(--danger-soft); color: var(--danger); border-color: #f1c9c3; }
+    .hero { display: grid; grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr); gap: clamp(30px, 5vw, 72px); align-items: center; padding: clamp(44px, 7vw, 88px) clamp(18px, 4vw, 64px) 42px; max-width: 1480px; margin: 0 auto; }
+    .eyebrow { color: var(--brand); font-weight: 900; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+    h1 { margin: 14px 0 18px; font-size: clamp(42px, 7vw, 76px); line-height: .96; letter-spacing: 0; max-width: 760px; }
+    .lead { color: var(--muted); font-size: clamp(18px, 2vw, 21px); line-height: 1.58; max-width: 660px; }
     .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
     .micro { color: var(--muted); margin-top: 14px; font-size: 14px; }
-    .preview { background: #f7faf5; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
-    .browserbar { display: flex; align-items: center; gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    .hero-proof { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .chip { display: inline-flex; align-items: center; min-height: 34px; border-radius: 999px; padding: 0 12px; background: white; border: 1px solid var(--line); color: #33413e; font-size: 13px; font-weight: 800; box-shadow: var(--shadow-sm); }
+    .visual { position: relative; min-height: 630px; border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); background: #18231f; }
+    .hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .76; }
+    .visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,28,23,.12), rgba(12,28,23,.62)); }
+    .preview { position: absolute; z-index: 1; left: 24px; right: 24px; bottom: 24px; background: rgba(249, 251, 248, .96); border: 1px solid rgba(255,255,255,.76); border-radius: 8px; box-shadow: 0 24px 60px rgba(5, 18, 14, .28); overflow: hidden; }
+    .browserbar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px; background: rgba(255,255,255,.72); }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: #c6d4ca; }
     .preview-body { padding: 20px; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .metric { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
-    .metric b { display: block; font-size: 28px; }
-    .metric span { display: block; color: var(--muted); font-size: 12px; }
+    .metric { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 14px; box-shadow: 0 1px 0 rgba(22,32,31,.02); }
+    .metric b { display: block; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .metric span { display: block; color: var(--muted); font-size: 12px; font-weight: 760; }
     .progress-list, .feed { margin-top: 16px; background: white; border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
     .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #eef3ef; }
     .row:last-child { border-bottom: 0; }
     .bar { height: 8px; min-width: 90px; border-radius: 99px; background: #e9f0eb; overflow: hidden; }
-    .bar i { display: block; height: 100%; background: var(--brand); }
-    .logos, .section { padding: 34px clamp(18px, 4vw, 64px); }
-    .logos { color: var(--muted); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-2)); }
+    .logos, .section { padding: 42px clamp(18px, 4vw, 64px); max-width: 1480px; margin: 0 auto; }
+    .logos { color: var(--muted); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); max-width: none; }
     .logo-strip { display: flex; flex-wrap: wrap; gap: 18px 28px; margin-top: 12px; font-weight: 800; color: #38443f; }
     .section h2 { font-size: clamp(30px, 4vw, 50px); margin: 0 0 10px; }
     .section > p { color: var(--muted); font-size: 18px; max-width: 760px; }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; min-height: 148px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; min-height: 148px; box-shadow: var(--shadow-sm); }
     .card h3 { margin: 0 0 9px; }
     .card p { margin: 0; color: var(--muted); line-height: 1.5; }
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; }
@@ -69,33 +85,41 @@ const html = String.raw`<!doctype html>
     .cta { background: #11251d; color: white; padding: clamp(34px, 5vw, 68px) clamp(18px, 4vw, 64px); display: flex; justify-content: space-between; gap: 24px; align-items: center; }
     .cta p { color: #c7d8d0; }
     .footer { padding: 24px clamp(18px, 4vw, 64px); color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .app { display: none; min-height: 100vh; grid-template-columns: 260px minmax(0, 1fr); }
-    .side { background: #10251d; color: white; padding: 22px; position: sticky; top: 0; height: 100vh; }
+    .app { display: none; min-height: 100vh; grid-template-columns: 280px minmax(0, 1fr); background: #f4f6f2; }
+    .side { background: #10251d; color: white; padding: 22px; position: sticky; top: 0; height: 100vh; border-right: 1px solid rgba(255,255,255,.1); }
     .side .brand { margin-bottom: 28px; }
     .tabs { display: grid; gap: 8px; }
-    .tab { text-align: left; background: transparent; color: #cfe0d8; border-radius: 8px; padding: 12px 13px; }
-    .tab.active { background: rgba(255,255,255,.12); color: white; }
+    .tab { text-align: left; background: transparent; color: #cfe0d8; border-radius: 8px; padding: 12px 13px; min-height: 46px; }
+    .tab:hover { background: rgba(255,255,255,.08); }
+    .tab.active { background: rgba(255,255,255,.14); color: white; box-shadow: inset 3px 0 0 var(--brand-2); }
     .main { padding: 24px clamp(18px, 4vw, 44px); }
     .top { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin-bottom: 22px; }
     .top h2 { margin: 0; font-size: clamp(28px, 4vw, 42px); }
     .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .table-wrap { background: white; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .table-wrap { background: white; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-sm); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 13px 14px; text-align: left; border-bottom: 1px solid #edf2ee; }
-    th { color: var(--muted); font-size: 13px; background: #f8faf7; }
+    th, td { padding: 13px 14px; text-align: left; border-bottom: 1px solid #edf2ee; vertical-align: middle; }
+    th { color: var(--muted); font-size: 12px; background: #f8faf7; letter-spacing: .04em; }
+    td { font-variant-numeric: tabular-nums; }
+    tr:hover td { background: #fbfcf8; }
     .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 800; background: #edf4ef; color: var(--brand); }
     .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; }
-    .form { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 10px; align-content: start; }
+    .form { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 11px; align-content: start; box-shadow: var(--shadow-sm); }
     label { color: var(--muted); font-size: 13px; font-weight: 800; }
-    input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; background: white; color: var(--ink); }
+    input, select, textarea { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; background: white; color: var(--ink); }
+    input:hover, select:hover, textarea:hover { border-color: #b9c8c3; }
     textarea { min-height: 90px; resize: vertical; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(11,22,18,.5); display: none; place-items: center; padding: 18px; z-index: 20; }
     .modal { width: min(430px, 100%); background: white; border-radius: 8px; padding: 22px; box-shadow: var(--shadow); }
     .modal h2 { margin: 0 0 8px; }
     .modal form { display: grid; gap: 11px; margin-top: 16px; }
-    .toast { position: fixed; right: 18px; bottom: 18px; background: #10251d; color: white; padding: 12px 14px; border-radius: 8px; display: none; z-index: 30; }
+    .toast { position: fixed; right: 18px; bottom: 18px; background: #10251d; color: white; padding: 12px 14px; border-radius: 8px; display: none; z-index: 30; box-shadow: var(--shadow); }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
     @media (max-width: 980px) {
       .hero, .workspace { grid-template-columns: 1fr; }
+      .visual { min-height: 540px; }
       .grid, .steps, .stat-grid { grid-template-columns: repeat(2, 1fr); }
       .app { grid-template-columns: 1fr; }
       .side { position: static; height: auto; }
@@ -104,6 +128,9 @@ const html = String.raw`<!doctype html>
     @media (max-width: 640px) {
       .nav { align-items: flex-start; }
       .nav-actions { flex-wrap: wrap; justify-content: flex-end; }
+      .hero { padding-top: 32px; }
+      .visual { min-height: auto; padding: 96px 12px 12px; }
+      .preview { position: relative; left: auto; right: auto; bottom: auto; }
       .metrics, .grid, .steps, .stat-grid { grid-template-columns: 1fr; }
       .tabs { grid-template-columns: 1fr 1fr; }
       .cta { display: block; }
@@ -113,6 +140,7 @@ const html = String.raw`<!doctype html>
   </style>
 </head>
 <body>
+  <a class="skip" href="#main">Saltar al contenido</a>
   <div id="site" class="shell">
     <nav class="nav">
       <a class="brand" href="#"><span class="logo">B</span> Brikr</a>
@@ -121,7 +149,7 @@ const html = String.raw`<!doctype html>
         <button class="btn primary" data-auth="signup">Comenzar gratis</button>
       </div>
     </nav>
-    <main>
+    <main id="main">
       <section class="hero">
         <div>
           <div class="eyebrow">Plataforma para profesionales de la construccion</div>
@@ -132,27 +160,36 @@ const html = String.raw`<!doctype html>
             <button class="btn ghost" data-auth="login">Iniciar sesion</button>
           </div>
           <p class="micro">Sin tarjeta de credito · Gratis para empezar</p>
+          <div class="hero-proof" aria-label="Modulos principales">
+            <span class="chip">Obras</span>
+            <span class="chip">Materiales</span>
+            <span class="chip">Remitos</span>
+            <span class="chip">Finanzas</span>
+          </div>
         </div>
-        <div class="preview" aria-label="Vista previa del dashboard">
-          <div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>brikr.app/dashboard</span></div>
-          <div class="preview-body">
-            <div class="metrics">
-              <div class="metric"><b>12</b><span>Obras activas</span></div>
-              <div class="metric"><b>$480k</b><span>Pagos pendientes</span></div>
-              <div class="metric"><b>34</b><span>Materiales</span></div>
-              <div class="metric"><b>8</b><span>Equipo</span></div>
-            </div>
-            <div class="progress-list">
-              <strong>AVANCE POR OBRA</strong>
-              <div class="row"><span>Torre Belgrano</span><div class="bar"><i style="width:72%"></i></div><b>72%</b></div>
-              <div class="row"><span>Residencia Norte</span><div class="bar"><i style="width:45%"></i></div><b>45%</b></div>
-              <div class="row"><span>Edificio Central</span><div class="bar"><i style="width:91%"></i></div><b>91%</b></div>
-            </div>
-            <div class="feed">
-              <strong>ACTIVIDAD</strong>
-              <div class="row"><span>Nuevo remito cargado</span><span class="pill">hoy</span></div>
-              <div class="row"><span>Pago aprobado</span><span class="pill">ayer</span></div>
-              <div class="row"><span>Material solicitado</span><span class="pill">2 dias</span></div>
+        <div class="visual" aria-label="Vista previa de gestion de obra">
+          <img class="hero-photo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/View_Above_Construction_Site_%28Unsplash%29.jpg/1280px-View_Above_Construction_Site_%28Unsplash%29.jpg" alt="Vista aerea de una obra en construccion">
+          <div class="preview" aria-label="Vista previa del dashboard">
+            <div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>brikr.app/dashboard</span></div>
+            <div class="preview-body">
+              <div class="metrics">
+                <div class="metric"><b>12</b><span>Obras activas</span></div>
+                <div class="metric"><b>$480k</b><span>Pagos pendientes</span></div>
+                <div class="metric"><b>34</b><span>Materiales</span></div>
+                <div class="metric"><b>8</b><span>Equipo</span></div>
+              </div>
+              <div class="progress-list">
+                <strong>AVANCE POR OBRA</strong>
+                <div class="row"><span>Torre Belgrano</span><div class="bar"><i style="width:72%"></i></div><b>72%</b></div>
+                <div class="row"><span>Residencia Norte</span><div class="bar"><i style="width:45%"></i></div><b>45%</b></div>
+                <div class="row"><span>Edificio Central</span><div class="bar"><i style="width:91%"></i></div><b>91%</b></div>
+              </div>
+              <div class="feed">
+                <strong>ACTIVIDAD</strong>
+                <div class="row"><span>Nuevo remito cargado</span><span class="pill">hoy</span></div>
+                <div class="row"><span>Pago aprobado</span><span class="pill">ayer</span></div>
+                <div class="row"><span>Material solicitado</span><span class="pill">2 dias</span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -224,14 +261,14 @@ const html = String.raw`<!doctype html>
       <h2 id="authTitle">Crear cuenta</h2>
       <p class="micro">Ingresa cualquier email para entrar al MVP.</p>
       <form id="authForm">
-        <label>Email<input id="email" type="email" required placeholder="tu@estudio.com"></label>
-        <label>Contrasena<input id="password" type="password" required minlength="4" placeholder="Minimo 4 caracteres"></label>
+        <label>Email<input id="email" type="email" autocomplete="email" required placeholder="tu@estudio.com"></label>
+        <label>Contrasena<input id="password" type="password" autocomplete="current-password" required minlength="4" placeholder="Minimo 4 caracteres"></label>
         <button class="btn primary" type="submit">Entrar al dashboard</button>
         <button class="btn ghost" type="button" id="closeModal">Cancelar</button>
       </form>
     </div>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     const seed = {
@@ -301,7 +338,7 @@ const html = String.raw`<!doctype html>
       tableBody.innerHTML = state[current].map(item => '<tr>' + cfg.columns.map(col => {
         const value = col === 'presupuesto' || col === 'monto' ? money(item[col]) : item[col];
         return '<td>' + value + '</td>';
-      }).join('') + '<td><button class="btn warn" data-delete="' + item.id + '">Eliminar</button></td></tr>').join('');
+      }).join('') + '<td><button class="btn warn" type="button" data-delete="' + item.id + '" aria-label="Eliminar registro">Eliminar</button></td></tr>').join('');
       entityForm.innerHTML = '<h3>Agregar ' + cfg.title.toLowerCase() + '</h3>' + cfg.fields.map(([name, label, type]) =>
         '<label>' + label + '<input name="' + name + '" type="' + (type || 'text') + '" required></label>'
       ).join('') + '<button class="btn primary" type="submit">Guardar</button>';
@@ -333,6 +370,7 @@ const html = String.raw`<!doctype html>
     tableBody.addEventListener('click', event => {
       const id = event.target.dataset && event.target.dataset.delete;
       if (!id) return;
+      if (!confirm('Eliminar este registro?')) return;
       state[current] = state[current].filter(item => item.id !== id);
       save();
       notify('Registro eliminado');
