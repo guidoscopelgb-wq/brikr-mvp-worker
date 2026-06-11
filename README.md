@@ -1,6 +1,6 @@
-# Brikr MVP Worker
+# GB Construction Assistant
 
-MVP inspirado en `brikr.app`, servido por un Cloudflare Worker.
+MVP de gestion de obras servido por un Cloudflare Worker.
 
 ## Funcionalidad
 

@@ -5,7 +5,7 @@ const html = String.raw`<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Brikr MVP - Gestion de Obras</title>
+  <title>GB Construction Assistant - Gestion de Obras</title>
   <meta name="description" content="MVP funcional para gestionar obras, materiales, pagos, remitos y equipos.">
   <style>
     :root {
@@ -143,7 +143,7 @@ const html = String.raw`<!doctype html>
   <a class="skip" href="#main">Saltar al contenido</a>
   <div id="site" class="shell">
     <nav class="nav">
-      <a class="brand" href="#"><span class="logo">B</span> Brikr</a>
+      <a class="brand" href="#"><span class="logo">GB</span> GB Construction Assistant</a>
       <div class="nav-actions">
         <button class="btn ghost" data-auth="login">Iniciar sesion</button>
         <button class="btn primary" data-auth="signup">Comenzar gratis</button>
@@ -154,7 +154,7 @@ const html = String.raw`<!doctype html>
         <div>
           <div class="eyebrow">Plataforma para profesionales de la construccion</div>
           <h1>Gestiona tus obras sin papeles</h1>
-          <p class="lead">Brikr es una plataforma todo-en-uno para arquitectos, ingenieros y corralones. Controla obras, materiales, pagos, remitos y equipos desde un solo lugar.</p>
+          <p class="lead">GB Construction Assistant es una plataforma todo-en-uno para arquitectos, ingenieros y corralones. Controla obras, materiales, pagos, remitos y equipos desde un solo lugar.</p>
           <div class="hero-ctas">
             <button class="btn primary" data-auth="signup">Empezar gratis</button>
             <button class="btn ghost" data-auth="login">Iniciar sesion</button>
@@ -170,7 +170,7 @@ const html = String.raw`<!doctype html>
         <div class="visual" aria-label="Vista previa de gestion de obra">
           <img class="hero-photo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/View_Above_Construction_Site_%28Unsplash%29.jpg/1280px-View_Above_Construction_Site_%28Unsplash%29.jpg" alt="Vista aerea de una obra en construccion">
           <div class="preview" aria-label="Vista previa del dashboard">
-            <div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>brikr.app/dashboard</span></div>
+            <div class="browserbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>GB Construction Assistant / Dashboard</span></div>
             <div class="preview-body">
               <div class="metrics">
                 <div class="metric"><b>12</b><span>Obras activas</span></div>
@@ -200,7 +200,7 @@ const html = String.raw`<!doctype html>
       </section>
       <section class="section">
         <h2>Todo lo que necesitas en un solo lugar</h2>
-        <p>Desde el primer plano hasta la entrega final, Brikr acompana cada etapa de la obra.</p>
+        <p>Desde el primer plano hasta la entrega final, GB Construction Assistant acompana cada etapa de la obra.</p>
         <div class="grid">
           <article class="card"><h3>Gestion de obras</h3><p>Avance, estado, presupuesto y cronograma de cada obra en tiempo real.</p></article>
           <article class="card"><h3>Materiales</h3><p>Solicitudes, cotizaciones, aprobaciones, entregas y alertas de stock.</p></article>
@@ -230,12 +230,12 @@ const html = String.raw`<!doctype html>
         </div>
       </section>
     </main>
-    <footer class="footer"><span class="brand"><span class="logo">B</span> Brikr</span><span>Gestion de obras para profesionales · MVP</span></footer>
+    <footer class="footer"><span class="brand"><span class="logo">GB</span> GB Construction Assistant</span><span>Gestion de obras para profesionales · MVP</span></footer>
   </div>
 
   <div id="app" class="app">
     <aside class="side">
-      <div class="brand"><span class="logo">B</span> Brikr</div>
+      <div class="brand"><span class="logo">GB</span> GB Construction Assistant</div>
       <div class="tabs">
         <button class="tab active" data-view="obras">Obras</button>
         <button class="tab" data-view="materiales">Materiales</button>
@@ -312,10 +312,18 @@ const html = String.raw`<!doctype html>
         fields: [['nombre','Nombre'], ['rol','Rol'], ['obra','Obra']]
       }
     };
-    let state = JSON.parse(localStorage.getItem('brikr-mvp') || 'null') || seed;
+    const legacyState = localStorage.getItem('brikr-mvp');
+    const legacyUser = localStorage.getItem('brikr-user');
+    if (legacyState && !localStorage.getItem('gb-construction-assistant')) {
+      localStorage.setItem('gb-construction-assistant', legacyState);
+    }
+    if (legacyUser && !localStorage.getItem('gb-construction-user')) {
+      localStorage.setItem('gb-construction-user', legacyUser);
+    }
+    let state = JSON.parse(localStorage.getItem('gb-construction-assistant') || 'null') || seed;
     let current = 'obras';
     const money = value => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(value || 0));
-    const save = () => localStorage.setItem('brikr-mvp', JSON.stringify(state));
+    const save = () => localStorage.setItem('gb-construction-assistant', JSON.stringify(state));
     const notify = text => { toast.textContent = text; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2200); };
     function openApp() { site.style.display = 'none'; app.style.display = 'grid'; render(); }
     function renderStats() {
@@ -352,7 +360,7 @@ const html = String.raw`<!doctype html>
     authModal.addEventListener('click', event => { if (event.target === authModal) authModal.style.display = 'none'; });
     authForm.addEventListener('submit', event => {
       event.preventDefault();
-      localStorage.setItem('brikr-user', email.value);
+      localStorage.setItem('gb-construction-user', email.value);
       authModal.style.display = 'none';
       notify('Sesion iniciada');
       openApp();
@@ -376,8 +384,8 @@ const html = String.raw`<!doctype html>
       notify('Registro eliminado');
       render();
     });
-    logout.addEventListener('click', () => { localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
-    if (localStorage.getItem('brikr-user')) openApp();
+    logout.addEventListener('click', () => { localStorage.removeItem('gb-construction-user'); localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
+    if (localStorage.getItem('gb-construction-user')) openApp();
   </script>
 </body>
 </html>`;
