@@ -105,7 +105,56 @@ const html = String.raw`<!doctype html>
     .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 800; background: #edf4ef; color: var(--brand); }
     .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; }
     .form { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 11px; align-content: start; box-shadow: var(--shadow-sm); }
+    .view-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+    .panel { background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; }
+    .panel-body { padding: 18px; }
+    .section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line); }
+    .section-head h3, .panel h3, .form h3 { margin: 0; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    .project-list { display: grid; }
+    .project-row { display: grid; grid-template-columns: minmax(180px, 1.3fr) minmax(130px, .8fr) 120px 150px auto; gap: 14px; align-items: center; padding: 16px 18px; border-bottom: 1px solid #edf2ee; }
+    .project-row:last-child { border-bottom: 0; }
+    .project-row:hover { background: #fbfcf8; }
+    .project-name { font-weight: 850; }
+    .project-meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
+    .progress-cell { min-width: 110px; }
+    .progress-cell .bar { margin-top: 7px; min-width: 100%; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .btn.small { min-height: 36px; padding: 0 11px; font-size: 13px; }
+    .btn.secondary { background: #e8f0f6; color: #254f6e; border-color: #cddce7; }
+    .summary-band { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border-bottom: 1px solid var(--line); }
+    .summary-item { background: #fbfcf8; padding: 14px 18px; }
+    .summary-item b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+    .summary-item span { color: var(--muted); font-size: 12px; font-weight: 750; }
+    .empty { padding: 34px 18px; color: var(--muted); text-align: center; }
+    .select-multiple { min-height: 122px; }
+    .helper { color: var(--muted); font-size: 12px; margin-top: -5px; }
+    .checkbox-grid { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcf8; }
+    .check-row { display: flex; align-items: center; gap: 9px; min-height: 36px; color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; }
+    .check-row input[type="checkbox"] { width: 18px; min-height: 18px; height: 18px; margin: 0; accent-color: var(--brand); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { display: inline-flex; align-items: center; min-height: 27px; border-radius: 999px; padding: 0 9px; background: #edf4ef; color: var(--brand-strong); font-size: 12px; font-weight: 800; }
+    .money-in { color: #176a49; font-weight: 850; }
+    .money-out { color: var(--danger); font-weight: 850; }
+    .detail-backdrop { position: fixed; inset: 0; z-index: 40; display: none; padding: 24px; background: rgba(7, 21, 17, .62); overflow-y: auto; }
+    .detail-backdrop.open { display: block; }
+    .detail-modal { width: min(1180px, 100%); margin: 0 auto; background: var(--paper); border-radius: 8px; box-shadow: 0 28px 80px rgba(5,18,14,.38); overflow: hidden; }
+    .detail-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 22px; background: rgba(255,255,255,.96); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+    .detail-header h2 { margin: 0; }
+    .detail-content { padding: 18px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .ledger { display: grid; }
+    .ledger-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px 16px; border-bottom: 1px solid #edf2ee; }
+    .ledger-row:last-child { border-bottom: 0; }
+    .ledger-title { font-weight: 800; }
+    .ledger-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .inline-form { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid var(--line); background: #fbfcf8; }
+    .inline-form .full { grid-column: 1 / -1; }
+    .inline-form .btn { grid-column: 1 / -1; }
+    .danger-link { color: var(--danger); background: transparent; min-height: 32px; padding: 4px 0; font-weight: 800; }
     label { color: var(--muted); font-size: 13px; font-weight: 800; }
+    fieldset { margin: 0; padding: 0; border: 0; }
+    legend { margin-bottom: 7px; color: var(--muted); font-size: 13px; font-weight: 800; }
     input, select, textarea { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; background: white; color: var(--ink); }
     input:hover, select:hover, textarea:hover { border-color: #b9c8c3; }
     textarea { min-height: 90px; resize: vertical; }
@@ -118,12 +167,14 @@ const html = String.raw`<!doctype html>
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
     @media (max-width: 980px) {
-      .hero, .workspace { grid-template-columns: 1fr; }
+      .hero, .workspace, .view-grid, .detail-grid { grid-template-columns: 1fr; }
       .visual { min-height: 540px; }
       .grid, .steps, .stat-grid { grid-template-columns: repeat(2, 1fr); }
       .app { grid-template-columns: 1fr; }
       .side { position: static; height: auto; }
       .tabs { grid-template-columns: repeat(4, 1fr); }
+      .project-row { grid-template-columns: 1fr 1fr; }
+      .project-row .actions { grid-column: 1 / -1; justify-content: flex-start; }
     }
     @media (max-width: 640px) {
       .nav { align-items: flex-start; }
@@ -136,6 +187,12 @@ const html = String.raw`<!doctype html>
       .cta { display: block; }
       table { min-width: 680px; }
       .table-wrap { overflow-x: auto; }
+      .project-row, .summary-band { grid-template-columns: 1fr; }
+      .detail-backdrop { padding: 0; }
+      .detail-modal { min-height: 100%; border-radius: 0; }
+      .detail-header { align-items: flex-start; }
+      .inline-form { grid-template-columns: 1fr; }
+      .inline-form .full, .inline-form .btn { grid-column: auto; }
     }
   </style>
 </head>
@@ -239,7 +296,7 @@ const html = String.raw`<!doctype html>
       <div class="tabs">
         <button class="tab active" data-view="obras">Obras</button>
         <button class="tab" data-view="materiales">Materiales</button>
-        <button class="tab" data-view="finanzas">Finanzas</button>
+        <button class="tab" data-view="finanzas">Estudio</button>
         <button class="tab" data-view="equipo">Equipo</button>
       </div>
     </aside>
@@ -249,11 +306,18 @@ const html = String.raw`<!doctype html>
         <button class="btn ghost" id="logout">Cerrar sesion</button>
       </div>
       <section class="stat-grid" id="stats"></section>
-      <section class="workspace">
-        <div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
-        <form class="form" id="entityForm"></form>
-      </section>
+      <section id="viewContent"></section>
     </main>
+  </div>
+
+  <div class="detail-backdrop" id="projectDetail" aria-hidden="true">
+    <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <header class="detail-header">
+        <div><h2 id="detailTitle">Seguimiento de obra</h2><p class="micro" id="detailSubtitle"></p></div>
+        <button class="btn ghost" type="button" id="closeDetail">Cerrar</button>
+      </header>
+      <div class="detail-content" id="detailContent"></div>
+    </section>
   </div>
 
   <div class="modal-backdrop" id="authModal">
@@ -273,44 +337,39 @@ const html = String.raw`<!doctype html>
   <script>
     const seed = {
       obras: [
-        { id: crypto.randomUUID(), nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', avance: 72, presupuesto: 18500000 },
-        { id: crypto.randomUUID(), nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', avance: 45, presupuesto: 8200000 },
-        { id: crypto.randomUUID(), nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', avance: 91, presupuesto: 26400000 }
+        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', avance: 72, presupuesto: 18500000 },
+        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', avance: 45, presupuesto: 8200000 },
+        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', avance: 91, presupuesto: 26400000 }
       ],
       materiales: [
-        { id: crypto.randomUUID(), obra: 'Torre Belgrano', item: 'Cemento x 50kg', cantidad: 120, estado: 'Aprobado' },
-        { id: crypto.randomUUID(), obra: 'Residencia Norte', item: 'Hierro 8mm', cantidad: 64, estado: 'Cotizando' }
+        { id: crypto.randomUUID(), obraId: 'obra-torre', item: 'Cemento x 50kg', cantidad: 120, proveedor: 'Corralon Norte', costo: 840000, estado: 'Aprobado' },
+        { id: crypto.randomUUID(), obraId: 'obra-residencia', item: 'Hierro 8mm', cantidad: 64, proveedor: 'Aceros SA', costo: 560000, estado: 'Cotizando' }
       ],
-      finanzas: [
-        { id: crypto.randomUUID(), obra: 'Torre Belgrano', concepto: 'Anticipo proveedor', tipo: 'Pago', monto: 480000, estado: 'Pendiente' },
-        { id: crypto.randomUUID(), obra: 'Edificio Central', concepto: 'Certificado avance', tipo: 'Cobro', monto: 1350000, estado: 'Aprobado' }
+      certificaciones: [
+        { id: crypto.randomUUID(), obraId: 'obra-torre', periodo: '2026-04', concepto: 'Estructura nivel 8', porcentaje: 18, monto: 2850000, estado: 'Aprobada' },
+        { id: crypto.randomUUID(), obraId: 'obra-torre', periodo: '2026-05', concepto: 'Mamposteria nivel 5', porcentaje: 12, monto: 1980000, estado: 'Presentada' },
+        { id: crypto.randomUUID(), obraId: 'obra-central', periodo: '2026-05', concepto: 'Terminaciones finales', porcentaje: 20, monto: 4300000, estado: 'Cobrada' }
+      ],
+      gastosObra: [
+        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-08', categoria: 'Mano de obra', concepto: 'Cuadrilla estructura', monto: 1480000, estado: 'Pagado' },
+        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-10', categoria: 'Materiales', concepto: 'Compra de cemento', monto: 840000, estado: 'Pendiente' },
+        { id: crypto.randomUUID(), obraId: 'obra-central', fecha: '2026-05-04', categoria: 'Servicios', concepto: 'Limpieza final', monto: 310000, estado: 'Pagado' }
+      ],
+      finanzasEstudio: [
+        { id: crypto.randomUUID(), fecha: '2026-05-05', tipo: 'Ingreso', categoria: 'Honorarios', concepto: 'Anticipo proyecto Caballito', monto: 2200000, estado: 'Cobrado' },
+        { id: crypto.randomUUID(), fecha: '2026-05-06', tipo: 'Egreso', categoria: 'Alquiler', concepto: 'Alquiler oficina', monto: 680000, estado: 'Pagado' },
+        { id: crypto.randomUUID(), fecha: '2026-05-09', tipo: 'Egreso', categoria: 'Software', concepto: 'Licencias y servicios', monto: 175000, estado: 'Pagado' }
       ],
       equipo: [
-        { id: crypto.randomUUID(), nombre: 'Julia Benitez', rol: 'Arquitecta', obra: 'Torre Belgrano' },
-        { id: crypto.randomUUID(), nombre: 'Martin Paz', rol: 'Supervisor', obra: 'Edificio Central' }
+        { id: crypto.randomUUID(), nombre: 'Julia Benitez', rol: 'Arquitecta', obraIds: ['obra-torre', 'obra-residencia'] },
+        { id: crypto.randomUUID(), nombre: 'Martin Paz', rol: 'Supervisor', obraIds: ['obra-torre', 'obra-central'] }
       ]
     };
     const views = {
-      obras: {
-        title: 'Obras', sub: 'Resumen operativo de tus proyectos activos.',
-        columns: ['nombre', 'cliente', 'estado', 'avance', 'presupuesto'],
-        fields: [['nombre','Nombre'], ['cliente','Cliente'], ['estado','Estado'], ['avance','Avance %','number'], ['presupuesto','Presupuesto','number']]
-      },
-      materiales: {
-        title: 'Materiales', sub: 'Solicitudes, compras y remitos de obra.',
-        columns: ['obra', 'item', 'cantidad', 'estado'],
-        fields: [['obra','Obra'], ['item','Material o remito'], ['cantidad','Cantidad','number'], ['estado','Estado']]
-      },
-      finanzas: {
-        title: 'Finanzas', sub: 'Pagos, cobros y compromisos pendientes.',
-        columns: ['obra', 'concepto', 'tipo', 'monto', 'estado'],
-        fields: [['obra','Obra'], ['concepto','Concepto'], ['tipo','Tipo'], ['monto','Monto','number'], ['estado','Estado']]
-      },
-      equipo: {
-        title: 'Equipo', sub: 'Personas asignadas a cada obra.',
-        columns: ['nombre', 'rol', 'obra'],
-        fields: [['nombre','Nombre'], ['rol','Rol'], ['obra','Obra']]
-      }
+      obras: ['Obras', 'Cartera, avance, certificaciones y costos por proyecto.'],
+      materiales: ['Materiales', 'Compras y solicitudes vinculadas a una obra existente.'],
+      finanzas: ['Finanzas del estudio', 'Ingresos y egresos administrativos separados de las obras.'],
+      equipo: ['Equipo', 'Personas, roles y asignacion simultanea a varias obras.']
     };
     const legacyState = localStorage.getItem('brikr-mvp');
     const legacyUser = localStorage.getItem('brikr-user');
@@ -321,35 +380,189 @@ const html = String.raw`<!doctype html>
       localStorage.setItem('gb-construction-user', legacyUser);
     }
     let state = JSON.parse(localStorage.getItem('gb-construction-assistant') || 'null') || seed;
+    const normalizeState = () => {
+      state.obras = Array.isArray(state.obras) ? state.obras : [];
+      state.materiales = (state.materiales || []).map(item => ({
+        ...item,
+        obraId: item.obraId || (state.obras.find(obra => obra.nombre === item.obra) || {}).id || ''
+      }));
+      state.certificaciones = Array.isArray(state.certificaciones) ? state.certificaciones : [];
+      state.gastosObra = Array.isArray(state.gastosObra) ? state.gastosObra : (state.finanzas || []).filter(item => item.obra).map(item => ({
+        id: item.id || crypto.randomUUID(),
+        obraId: (state.obras.find(obra => obra.nombre === item.obra) || {}).id || '',
+        fecha: item.fecha || '',
+        categoria: item.categoria || 'General',
+        concepto: item.concepto,
+        monto: item.monto,
+        estado: item.estado || 'Pendiente'
+      }));
+      state.finanzasEstudio = Array.isArray(state.finanzasEstudio) ? state.finanzasEstudio : [];
+      state.equipo = (state.equipo || []).map(persona => ({
+        ...persona,
+        obraIds: Array.isArray(persona.obraIds) ? persona.obraIds : [((state.obras.find(obra => obra.nombre === persona.obra) || {}).id || '')].filter(Boolean)
+      }));
+    };
+    normalizeState();
     let current = 'obras';
+    let selectedProjectId = null;
     const money = value => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(value || 0));
+    const number = value => Number(value || 0);
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[character]);
+    const obraById = id => state.obras.find(obra => obra.id === id);
+    const obraName = id => (obraById(id) || {}).nombre || 'Obra sin asignar';
+    const obraOptions = selected => '<option value="">Seleccionar obra</option>' + state.obras.map(obra => '<option value="' + escapeHtml(obra.id) + '"' + (obra.id === selected ? ' selected' : '') + '>' + escapeHtml(obra.nombre) + '</option>').join('');
+    const today = () => new Date().toISOString().slice(0, 10);
     const save = () => localStorage.setItem('gb-construction-assistant', JSON.stringify(state));
     const notify = text => { toast.textContent = text; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2200); };
     function openApp() { site.style.display = 'none'; app.style.display = 'grid'; render(); }
     function renderStats() {
-      const pending = state.finanzas.filter(x => x.estado.toLowerCase().includes('pend')).reduce((sum, x) => sum + Number(x.monto || 0), 0);
+      const certified = state.certificaciones.reduce((sum, item) => sum + number(item.monto), 0);
+      const projectExpenses = state.gastosObra.reduce((sum, item) => sum + number(item.monto), 0);
+      const studioBalance = state.finanzasEstudio.reduce((sum, item) => sum + (item.tipo === 'Ingreso' ? number(item.monto) : -number(item.monto)), 0);
       const avg = state.obras.length ? Math.round(state.obras.reduce((sum, x) => sum + Number(x.avance || 0), 0) / state.obras.length) : 0;
       stats.innerHTML = [
         ['Obras activas', state.obras.length],
-        ['Pagos pendientes', money(pending)],
-        ['Materiales/remitos', state.materiales.length],
-        ['Avance promedio', avg + '%']
+        ['Monto certificado', money(certified)],
+        ['Gastos de obra', money(projectExpenses)],
+        ['Caja del estudio', money(studioBalance)]
       ].map(([label, value]) => '<div class="metric"><b>' + value + '</b><span>' + label + '</span></div>').join('');
+    }
+    function renderObras() {
+      const totalBudget = state.obras.reduce((sum, obra) => sum + number(obra.presupuesto), 0);
+      const totalCertified = state.certificaciones.reduce((sum, item) => sum + number(item.monto), 0);
+      const totalExpenses = state.gastosObra.reduce((sum, item) => sum + number(item.monto), 0);
+      const rows = state.obras.length ? state.obras.map(obra => {
+        const certifiedPct = Math.min(100, state.certificaciones.filter(item => item.obraId === obra.id).reduce((sum, item) => sum + number(item.porcentaje), 0));
+        const expenses = state.gastosObra.filter(item => item.obraId === obra.id).reduce((sum, item) => sum + number(item.monto), 0);
+        return '<article class="project-row">' +
+          '<div><div class="project-name">' + escapeHtml(obra.nombre) + '</div><div class="project-meta">' + escapeHtml(obra.cliente) + '</div></div>' +
+          '<div><span class="pill">' + escapeHtml(obra.estado) + '</span><div class="project-meta">Fisico: ' + number(obra.avance) + '%</div></div>' +
+          '<div class="progress-cell"><b>' + certifiedPct + '% cert.</b><div class="bar"><i style="width:' + certifiedPct + '%"></i></div></div>' +
+          '<div><b>' + money(expenses) + '</b><div class="project-meta">Gastos cargados</div></div>' +
+          '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button><button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button></div>' +
+        '</article>';
+      }).join('') : '<div class="empty">Todavia no hay obras. Crea la primera desde el formulario.</div>';
+      viewContent.innerHTML =
+        '<div class="view-grid"><section class="panel"><div class="summary-band">' +
+          '<div class="summary-item"><b>' + state.obras.length + '</b><span>Obras</span></div>' +
+          '<div class="summary-item"><b>' + money(totalBudget) + '</b><span>Presupuesto total</span></div>' +
+          '<div class="summary-item"><b>' + money(totalCertified) + '</b><span>Certificado</span></div>' +
+          '<div class="summary-item"><b>' + money(totalExpenses) + '</b><span>Gastos</span></div>' +
+        '</div><div class="section-head"><div><h3>Cartera de obras</h3><p>Entra al seguimiento para cargar certificados y gastos.</p></div></div><div class="project-list">' + rows + '</div></section>' +
+        '<form class="form" data-form="obra"><h3>Nueva obra</h3>' +
+          '<label>Nombre<input name="nombre" required></label>' +
+          '<label>Cliente<input name="cliente" required></label>' +
+          '<label>Estado<select name="estado" required><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label>' +
+          '<label>Avance fisico %<input name="avance" type="number" min="0" max="100" value="0" required></label>' +
+          '<label>Presupuesto<input name="presupuesto" type="number" min="0" required></label>' +
+          '<button class="btn primary" type="submit">Crear obra</button></form></div>';
+    }
+    function renderMaterials() {
+      const total = state.materiales.reduce((sum, item) => sum + number(item.costo), 0);
+      const rows = state.materiales.length ? state.materiales.map(item =>
+        '<tr><td>' + escapeHtml(obraName(item.obraId)) + '</td><td><b>' + escapeHtml(item.item) + '</b><div class="project-meta">' + escapeHtml(item.proveedor || 'Sin proveedor') + '</div></td><td>' + escapeHtml(item.cantidad) + '</td><td>' + money(item.costo) + '</td><td><span class="pill">' + escapeHtml(item.estado) + '</span></td><td><button class="btn warn small" type="button" data-delete-material="' + escapeHtml(item.id) + '">Eliminar</button></td></tr>'
+      ).join('') : '<tr><td colspan="6" class="empty">No hay materiales cargados.</td></tr>';
+      viewContent.innerHTML =
+        '<div class="view-grid"><section class="panel"><div class="summary-band">' +
+          '<div class="summary-item"><b>' + state.materiales.length + '</b><span>Registros</span></div>' +
+          '<div class="summary-item"><b>' + money(total) + '</b><span>Costo estimado</span></div>' +
+          '<div class="summary-item"><b>' + state.materiales.filter(item => item.estado === 'Pendiente').length + '</b><span>Pendientes</span></div>' +
+          '<div class="summary-item"><b>' + new Set(state.materiales.map(item => item.obraId).filter(Boolean)).size + '</b><span>Obras vinculadas</span></div>' +
+        '</div><div class="table-wrap"><table><thead><tr><th>OBRA</th><th>MATERIAL</th><th>CANTIDAD</th><th>COSTO</th><th>ESTADO</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
+        '<form class="form" data-form="material"><h3>Cargar material</h3>' +
+          '<label>Obra<select name="obraId" required>' + obraOptions('') + '</select></label>' +
+          '<label>Material o remito<input name="item" required></label>' +
+          '<label>Proveedor<input name="proveedor"></label>' +
+          '<label>Cantidad<input name="cantidad" type="number" min="0" required></label>' +
+          '<label>Costo estimado<input name="costo" type="number" min="0" required></label>' +
+          '<label>Estado<select name="estado" required><option>Pendiente</option><option>Cotizando</option><option>Aprobado</option><option>Entregado</option></select></label>' +
+          '<button class="btn primary" type="submit"' + (state.obras.length ? '' : ' disabled') + '>Guardar material</button></form></div>';
+    }
+    function renderFinances() {
+      const income = state.finanzasEstudio.filter(item => item.tipo === 'Ingreso').reduce((sum, item) => sum + number(item.monto), 0);
+      const expenses = state.finanzasEstudio.filter(item => item.tipo === 'Egreso').reduce((sum, item) => sum + number(item.monto), 0);
+      const rows = state.finanzasEstudio.length ? state.finanzasEstudio.slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).map(item =>
+        '<tr><td>' + escapeHtml(item.fecha || '-') + '</td><td><span class="pill">' + escapeHtml(item.tipo) + '</span></td><td><b>' + escapeHtml(item.concepto) + '</b><div class="project-meta">' + escapeHtml(item.categoria) + '</div></td><td class="' + (item.tipo === 'Ingreso' ? 'money-in' : 'money-out') + '">' + (item.tipo === 'Ingreso' ? '+' : '-') + money(item.monto) + '</td><td>' + escapeHtml(item.estado) + '</td><td><button class="btn warn small" type="button" data-delete-finance="' + escapeHtml(item.id) + '">Eliminar</button></td></tr>'
+      ).join('') : '<tr><td colspan="6" class="empty">No hay movimientos del estudio.</td></tr>';
+      viewContent.innerHTML =
+        '<div class="view-grid"><section class="panel"><div class="summary-band">' +
+          '<div class="summary-item"><b class="money-in">' + money(income) + '</b><span>Ingresos</span></div>' +
+          '<div class="summary-item"><b class="money-out">' + money(expenses) + '</b><span>Egresos</span></div>' +
+          '<div class="summary-item"><b>' + money(income - expenses) + '</b><span>Saldo</span></div>' +
+          '<div class="summary-item"><b>' + state.finanzasEstudio.length + '</b><span>Movimientos</span></div>' +
+        '</div><div class="section-head"><div><h3>Administracion del estudio</h3><p>Estos movimientos no impactan en los costos de las obras.</p></div></div><div class="table-wrap"><table><thead><tr><th>FECHA</th><th>TIPO</th><th>CONCEPTO</th><th>MONTO</th><th>ESTADO</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
+        '<form class="form" data-form="finance"><h3>Nuevo movimiento</h3>' +
+          '<label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label>' +
+          '<label>Tipo<select name="tipo" required><option>Ingreso</option><option>Egreso</option></select></label>' +
+          '<label>Categoria<input name="categoria" placeholder="Honorarios, alquiler, software..." required></label>' +
+          '<label>Concepto<input name="concepto" required></label>' +
+          '<label>Monto<input name="monto" type="number" min="0" required></label>' +
+          '<label>Estado<select name="estado" required><option>Pendiente</option><option>Cobrado</option><option>Pagado</option><option>Vencido</option></select></label>' +
+          '<button class="btn primary" type="submit">Guardar movimiento</button></form></div>';
+    }
+    function renderTeam() {
+      const rows = state.equipo.length ? state.equipo.map(persona =>
+        '<tr><td><b>' + escapeHtml(persona.nombre) + '</b></td><td>' + escapeHtml(persona.rol) + '</td><td><div class="tags">' + (persona.obraIds || []).map(id => '<span class="tag">' + escapeHtml(obraName(id)) + '</span>').join('') + '</div></td><td><button class="btn warn small" type="button" data-delete-person="' + escapeHtml(persona.id) + '">Eliminar</button></td></tr>'
+      ).join('') : '<tr><td colspan="4" class="empty">No hay integrantes cargados.</td></tr>';
+      const assignments = state.obras.map(obra => '<label class="check-row"><input type="checkbox" name="obraIds" value="' + escapeHtml(obra.id) + '"><span>' + escapeHtml(obra.nombre) + '</span></label>').join('');
+      viewContent.innerHTML =
+        '<div class="view-grid"><section class="panel"><div class="summary-band">' +
+          '<div class="summary-item"><b>' + state.equipo.length + '</b><span>Personas</span></div>' +
+          '<div class="summary-item"><b>' + state.equipo.reduce((sum, persona) => sum + (persona.obraIds || []).length, 0) + '</b><span>Asignaciones</span></div>' +
+          '<div class="summary-item"><b>' + new Set(state.equipo.map(persona => persona.rol)).size + '</b><span>Roles</span></div>' +
+          '<div class="summary-item"><b>' + state.obras.length + '</b><span>Obras</span></div>' +
+        '</div><div class="table-wrap"><table><thead><tr><th>PERSONA</th><th>ROL</th><th>OBRAS ASIGNADAS</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
+        '<form class="form" data-form="person"><h3>Agregar integrante</h3>' +
+          '<label>Nombre<input name="nombre" required></label>' +
+          '<label>Rol<input name="rol" placeholder="Arquitecta, supervisor..." required></label>' +
+          '<fieldset><legend>Obras</legend><div class="checkbox-grid">' + (assignments || '<span class="helper">Primero crea una obra.</span>') + '</div></fieldset>' +
+          '<div class="helper">Marca todas las obras en las que participa.</div>' +
+          '<button class="btn primary" type="submit">Guardar integrante</button></form></div>';
     }
     function render() {
       const cfg = views[current];
-      viewTitle.textContent = cfg.title;
-      viewSub.textContent = cfg.sub;
+      viewTitle.textContent = cfg[0];
+      viewSub.textContent = cfg[1];
       document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.view === current));
       renderStats();
-      tableHead.innerHTML = '<tr>' + cfg.columns.map(col => '<th>' + col.toUpperCase() + '</th>').join('') + '<th></th></tr>';
-      tableBody.innerHTML = state[current].map(item => '<tr>' + cfg.columns.map(col => {
-        const value = col === 'presupuesto' || col === 'monto' ? money(item[col]) : item[col];
-        return '<td>' + value + '</td>';
-      }).join('') + '<td><button class="btn warn" type="button" data-delete="' + item.id + '" aria-label="Eliminar registro">Eliminar</button></td></tr>').join('');
-      entityForm.innerHTML = '<h3>Agregar ' + cfg.title.toLowerCase() + '</h3>' + cfg.fields.map(([name, label, type]) =>
-        '<label>' + label + '<input name="' + name + '" type="' + (type || 'text') + '" required></label>'
-      ).join('') + '<button class="btn primary" type="submit">Guardar</button>';
+      if (current === 'obras') renderObras();
+      if (current === 'materiales') renderMaterials();
+      if (current === 'finanzas') renderFinances();
+      if (current === 'equipo') renderTeam();
+    }
+    function renderProjectDetail(id) {
+      const obra = obraById(id);
+      if (!obra) return;
+      selectedProjectId = id;
+      const certificates = state.certificaciones.filter(item => item.obraId === id);
+      const expenses = state.gastosObra.filter(item => item.obraId === id);
+      const certifiedPct = Math.min(100, certificates.reduce((sum, item) => sum + number(item.porcentaje), 0));
+      const certifiedAmount = certificates.reduce((sum, item) => sum + number(item.monto), 0);
+      const expenseAmount = expenses.reduce((sum, item) => sum + number(item.monto), 0);
+      const balance = number(obra.presupuesto) - expenseAmount;
+      detailTitle.textContent = obra.nombre;
+      detailSubtitle.textContent = obra.cliente + ' · ' + obra.estado;
+      const certRows = certificates.length ? certificates.map(item =>
+        '<div class="ledger-row"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.periodo) + ' · ' + number(item.porcentaje) + '% · ' + escapeHtml(item.estado) + '</div></div><div><b>' + money(item.monto) + '</b><br><button class="danger-link" type="button" data-delete-certificate="' + escapeHtml(item.id) + '">Eliminar</button></div></div>'
+      ).join('') : '<div class="empty">Sin certificaciones cargadas.</div>';
+      const expenseRows = expenses.length ? expenses.slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).map(item =>
+        '<div class="ledger-row"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.fecha || '-') + ' · ' + escapeHtml(item.categoria) + ' · ' + escapeHtml(item.estado) + '</div></div><div><b class="money-out">' + money(item.monto) + '</b><br><button class="danger-link" type="button" data-delete-expense="' + escapeHtml(item.id) + '">Eliminar</button></div></div>'
+      ).join('') : '<div class="empty">Sin gastos cargados.</div>';
+      detailContent.innerHTML =
+        '<div class="summary-band">' +
+          '<div class="summary-item"><b>' + number(obra.avance) + '%</b><span>Avance fisico</span></div>' +
+          '<div class="summary-item"><b>' + certifiedPct + '%</b><span>Avance certificado</span></div>' +
+          '<div class="summary-item"><b>' + money(certifiedAmount) + '</b><span>Monto certificado</span></div>' +
+          '<div class="summary-item"><b>' + money(balance) + '</b><span>Presupuesto disponible</span></div>' +
+        '</div><div class="detail-grid">' +
+          '<section class="panel"><div class="section-head"><div><h3>Certificaciones de obra</h3><p>Historial de certificados por periodo y estado.</p></div></div><div class="ledger">' + certRows + '</div>' +
+            '<form class="inline-form" data-form="certificate"><label>Periodo<input name="periodo" type="month" required></label><label>Porcentaje<input name="porcentaje" type="number" min="0" max="100" required></label><label class="full">Concepto<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Borrador</option><option>Presentada</option><option>Aprobada</option><option>Cobrada</option></select></label><button class="btn primary" type="submit">Agregar certificacion</button></form>' +
+          '</section>' +
+          '<section class="panel"><div class="section-head"><div><h3>Gastos de la obra</h3><p>Costos directos separados de la administracion del estudio.</p></div></div><div class="ledger">' + expenseRows + '</div>' +
+            '<form class="inline-form" data-form="project-expense"><label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label><label>Categoria<select name="categoria"><option>Materiales</option><option>Mano de obra</option><option>Servicios</option><option>Subcontratos</option><option>Equipos</option><option>Otros</option></select></label><label class="full">Concepto<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Pendiente</option><option>Pagado</option><option>Vencido</option></select></label><button class="btn primary" type="submit">Agregar gasto</button></form>' +
+          '</section></div>';
+      projectDetail.classList.add('open');
+      projectDetail.setAttribute('aria-hidden', 'false');
     }
     document.querySelectorAll('[data-auth]').forEach(btn => btn.addEventListener('click', () => {
       authTitle.textContent = btn.dataset.auth === 'login' ? 'Iniciar sesion' : 'Crear cuenta';
@@ -366,24 +579,79 @@ const html = String.raw`<!doctype html>
       openApp();
     });
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { current = tab.dataset.view; render(); }));
-    entityForm.addEventListener('submit', event => {
+    viewContent.addEventListener('submit', event => {
       event.preventDefault();
-      const data = Object.fromEntries(new FormData(entityForm).entries());
+      const form = event.target;
+      const formType = form.dataset.form;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
       data.id = crypto.randomUUID();
-      state[current].push(data);
+      if (formType === 'obra') state.obras.push(data);
+      if (formType === 'material') state.materiales.push(data);
+      if (formType === 'finance') state.finanzasEstudio.push(data);
+      if (formType === 'person') state.equipo.push({ id: data.id, nombre: data.nombre, rol: data.rol, obraIds: formData.getAll('obraIds') });
       save();
       notify('Registro guardado');
       render();
     });
-    tableBody.addEventListener('click', event => {
-      const id = event.target.dataset && event.target.dataset.delete;
-      if (!id) return;
+    viewContent.addEventListener('click', event => {
+      const target = event.target;
+      const projectId = target.dataset.openProject;
+      if (projectId) return renderProjectDetail(projectId);
+      const deleteProject = target.dataset.deleteProject;
+      const deleteMaterial = target.dataset.deleteMaterial;
+      const deleteFinance = target.dataset.deleteFinance;
+      const deletePerson = target.dataset.deletePerson;
+      if (!deleteProject && !deleteMaterial && !deleteFinance && !deletePerson) return;
       if (!confirm('Eliminar este registro?')) return;
-      state[current] = state[current].filter(item => item.id !== id);
+      if (deleteProject) {
+        state.obras = state.obras.filter(item => item.id !== deleteProject);
+        state.materiales = state.materiales.filter(item => item.obraId !== deleteProject);
+        state.certificaciones = state.certificaciones.filter(item => item.obraId !== deleteProject);
+        state.gastosObra = state.gastosObra.filter(item => item.obraId !== deleteProject);
+        state.equipo = state.equipo.map(persona => ({ ...persona, obraIds: persona.obraIds.filter(id => id !== deleteProject) }));
+      }
+      if (deleteMaterial) state.materiales = state.materiales.filter(item => item.id !== deleteMaterial);
+      if (deleteFinance) state.finanzasEstudio = state.finanzasEstudio.filter(item => item.id !== deleteFinance);
+      if (deletePerson) state.equipo = state.equipo.filter(item => item.id !== deletePerson);
       save();
       notify('Registro eliminado');
       render();
     });
+    detailContent.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!selectedProjectId) return;
+      const form = event.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.id = crypto.randomUUID();
+      data.obraId = selectedProjectId;
+      if (form.dataset.form === 'certificate') state.certificaciones.push(data);
+      if (form.dataset.form === 'project-expense') state.gastosObra.push(data);
+      save();
+      notify('Seguimiento actualizado');
+      renderStats();
+      renderProjectDetail(selectedProjectId);
+    });
+    detailContent.addEventListener('click', event => {
+      const certificateId = event.target.dataset.deleteCertificate;
+      const expenseId = event.target.dataset.deleteExpense;
+      if (!certificateId && !expenseId) return;
+      if (!confirm('Eliminar este registro de seguimiento?')) return;
+      if (certificateId) state.certificaciones = state.certificaciones.filter(item => item.id !== certificateId);
+      if (expenseId) state.gastosObra = state.gastosObra.filter(item => item.id !== expenseId);
+      save();
+      renderStats();
+      renderProjectDetail(selectedProjectId);
+    });
+    const closeProjectDetail = () => {
+      projectDetail.classList.remove('open');
+      projectDetail.setAttribute('aria-hidden', 'true');
+      selectedProjectId = null;
+      render();
+    };
+    closeDetail.addEventListener('click', closeProjectDetail);
+    projectDetail.addEventListener('click', event => { if (event.target === projectDetail) closeProjectDetail(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && projectDetail.classList.contains('open')) closeProjectDetail(); });
     logout.addEventListener('click', () => { localStorage.removeItem('gb-construction-user'); localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
     if (localStorage.getItem('gb-construction-user')) openApp();
   </script>
