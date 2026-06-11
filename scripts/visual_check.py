@@ -19,7 +19,6 @@ with sync_playwright() as p:
     page.locator('form[data-form="obra"]').get_by_label("Nombre").fill("Centro Medico Palermo")
     page.locator('form[data-form="obra"]').get_by_label("Cliente").fill("Salud Urbana")
     page.locator('form[data-form="obra"]').get_by_label("Estado").select_option("En obra")
-    page.locator('form[data-form="obra"]').get_by_label("Avance fisico %").fill("26")
     page.locator('form[data-form="obra"]').get_by_label("Presupuesto").fill("32000000")
     page.locator('form[data-form="obra"]').get_by_role("button", name="Crear obra").click()
     expect(page.get_by_text("Centro Medico Palermo", exact=True)).to_be_visible()

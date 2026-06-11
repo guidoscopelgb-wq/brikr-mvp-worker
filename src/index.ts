@@ -259,7 +259,7 @@ const html = String.raw`<!doctype html>
         <h2>Todo lo que necesitas en un solo lugar</h2>
         <p>Desde el primer plano hasta la entrega final, GB Construction Assistant acompana cada etapa de la obra.</p>
         <div class="grid">
-          <article class="card"><h3>Gestion de obras</h3><p>Avance, estado, presupuesto y cronograma de cada obra en tiempo real.</p></article>
+          <article class="card"><h3>Gestion de obras</h3><p>Certificaciones, estado, presupuesto y costos de cada obra en tiempo real.</p></article>
           <article class="card"><h3>Materiales</h3><p>Solicitudes, cotizaciones, aprobaciones, entregas y alertas de stock.</p></article>
           <article class="card"><h3>Pagos y cobros</h3><p>Flujo de caja mensual con pagos a proveedores y cobros a clientes.</p></article>
           <article class="card"><h3>Remitos digitales</h3><p>Genera remitos con items de linea y estado de entrega.</p></article>
@@ -337,9 +337,9 @@ const html = String.raw`<!doctype html>
   <script>
     const seed = {
       obras: [
-        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', avance: 72, presupuesto: 18500000 },
-        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', avance: 45, presupuesto: 8200000 },
-        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', avance: 91, presupuesto: 26400000 }
+        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', presupuesto: 18500000 },
+        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', presupuesto: 8200000 },
+        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', presupuesto: 26400000 }
       ],
       materiales: [
         { id: crypto.randomUUID(), obraId: 'obra-torre', item: 'Cemento x 50kg', cantidad: 120, proveedor: 'Corralon Norte', costo: 840000, estado: 'Aprobado' },
@@ -366,7 +366,7 @@ const html = String.raw`<!doctype html>
       ]
     };
     const views = {
-      obras: ['Obras', 'Cartera, avance, certificaciones y costos por proyecto.'],
+      obras: ['Obras', 'Cartera, certificaciones y costos por proyecto.'],
       materiales: ['Materiales', 'Compras y solicitudes vinculadas a una obra existente.'],
       finanzas: ['Finanzas del estudio', 'Ingresos y egresos administrativos separados de las obras.'],
       equipo: ['Equipo', 'Personas, roles y asignacion simultanea a varias obras.']
@@ -419,7 +419,6 @@ const html = String.raw`<!doctype html>
       const certified = state.certificaciones.reduce((sum, item) => sum + number(item.monto), 0);
       const projectExpenses = state.gastosObra.reduce((sum, item) => sum + number(item.monto), 0);
       const studioBalance = state.finanzasEstudio.reduce((sum, item) => sum + (item.tipo === 'Ingreso' ? number(item.monto) : -number(item.monto)), 0);
-      const avg = state.obras.length ? Math.round(state.obras.reduce((sum, x) => sum + Number(x.avance || 0), 0) / state.obras.length) : 0;
       stats.innerHTML = [
         ['Obras activas', state.obras.length],
         ['Monto certificado', money(certified)],
@@ -436,7 +435,7 @@ const html = String.raw`<!doctype html>
         const expenses = state.gastosObra.filter(item => item.obraId === obra.id).reduce((sum, item) => sum + number(item.monto), 0);
         return '<article class="project-row">' +
           '<div><div class="project-name">' + escapeHtml(obra.nombre) + '</div><div class="project-meta">' + escapeHtml(obra.cliente) + '</div></div>' +
-          '<div><span class="pill">' + escapeHtml(obra.estado) + '</span><div class="project-meta">Fisico: ' + number(obra.avance) + '%</div></div>' +
+          '<div><span class="pill">' + escapeHtml(obra.estado) + '</span><div class="project-meta">' + state.certificaciones.filter(item => item.obraId === obra.id).length + ' certificados</div></div>' +
           '<div class="progress-cell"><b>' + certifiedPct + '% cert.</b><div class="bar"><i style="width:' + certifiedPct + '%"></i></div></div>' +
           '<div><b>' + money(expenses) + '</b><div class="project-meta">Gastos cargados</div></div>' +
           '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button><button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button></div>' +
@@ -453,7 +452,6 @@ const html = String.raw`<!doctype html>
           '<label>Nombre<input name="nombre" required></label>' +
           '<label>Cliente<input name="cliente" required></label>' +
           '<label>Estado<select name="estado" required><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label>' +
-          '<label>Avance fisico %<input name="avance" type="number" min="0" max="100" value="0" required></label>' +
           '<label>Presupuesto<input name="presupuesto" type="number" min="0" required></label>' +
           '<button class="btn primary" type="submit">Crear obra</button></form></div>';
     }
@@ -550,8 +548,8 @@ const html = String.raw`<!doctype html>
       ).join('') : '<div class="empty">Sin gastos cargados.</div>';
       detailContent.innerHTML =
         '<div class="summary-band">' +
-          '<div class="summary-item"><b>' + number(obra.avance) + '%</b><span>Avance fisico</span></div>' +
-          '<div class="summary-item"><b>' + certifiedPct + '%</b><span>Avance certificado</span></div>' +
+          '<div class="summary-item"><b>' + certifiedPct + '%</b><span>Progreso certificado</span></div>' +
+          '<div class="summary-item"><b>' + certificates.length + '</b><span>Certificaciones</span></div>' +
           '<div class="summary-item"><b>' + money(certifiedAmount) + '</b><span>Monto certificado</span></div>' +
           '<div class="summary-item"><b>' + money(balance) + '</b><span>Presupuesto disponible</span></div>' +
         '</div><div class="detail-grid">' +

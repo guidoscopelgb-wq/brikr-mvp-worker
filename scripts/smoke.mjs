@@ -12,7 +12,6 @@ const projectForm = page.locator('form[data-form="obra"]');
 await projectForm.getByLabel("Nombre").fill("Obra Demo Palermo");
 await projectForm.getByLabel("Cliente").fill("Cliente MVP");
 await projectForm.getByLabel("Estado").selectOption("En obra");
-await projectForm.getByLabel("Avance fisico %").fill("28");
 await projectForm.getByLabel("Presupuesto").fill("1200000");
 await projectForm.getByRole("button", { name: "Crear obra" }).click();
 await page.getByRole("button", { name: "Materiales" }).click();
