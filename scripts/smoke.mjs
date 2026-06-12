@@ -8,30 +8,33 @@ await page.getByRole("button", { name: "Comenzar gratis" }).click();
 await page.getByLabel("Email").fill("demo@gbconstruction.app");
 await page.getByLabel("Contrasena").fill("demo1234");
 await page.getByRole("button", { name: "Entrar al dashboard" }).click();
+
+await page.getByRole("button", { name: "Presupuestos" }).click();
+const budgetForm = page.locator('form[data-form="budget"]');
+await budgetForm.getByLabel("Nombre").fill("Presupuesto Demo Integral");
+await budgetForm.getByLabel("Cliente").fill("Cliente MVP");
+await budgetForm.getByRole("button", { name: "Crear presupuesto" }).click();
+await page.getByText("Presupuesto Demo Integral", { exact: true }).waitFor();
+
+await page.getByRole("button", { name: "Obras" }).click();
 const projectForm = page.locator('form[data-form="obra"]');
 await projectForm.getByLabel("Nombre").fill("Obra Demo Palermo");
 await projectForm.getByLabel("Cliente").fill("Cliente MVP");
 await projectForm.getByLabel("Estado").selectOption("En obra");
-await projectForm.getByLabel("Presupuesto").fill("1200000");
+await projectForm.getByLabel("Avance real %").fill("28");
+await projectForm.getByLabel("Monto total cotizado").fill("1200000");
 await projectForm.getByRole("button", { name: "Crear obra" }).click();
-await page.getByRole("button", { name: "Materiales" }).click();
-const materialForm = page.locator('form[data-form="material"]');
-await materialForm.getByLabel("Obra").selectOption({ label: "Obra Demo Palermo" });
-await materialForm.getByLabel("Material o remito").fill("Ladrillo hueco 12");
-await materialForm.getByLabel("Proveedor").fill("Corralon Demo");
-await materialForm.getByLabel("Cantidad").fill("900");
-await materialForm.getByLabel("Costo estimado").fill("780000");
-await materialForm.getByLabel("Estado").selectOption("Aprobado");
-await materialForm.getByRole("button", { name: "Guardar material" }).click();
+await page.getByText("Obra Demo Palermo", { exact: true }).waitFor();
+
+const project = page.locator(".project-row").filter({ hasText: "Obra Demo Palermo" });
+await project.getByRole("button", { name: "Seguimiento" }).click();
+const expense = page.locator('form[data-form="project-expense"]');
+await expense.getByLabel("Descripcion").fill("Ladrillos huecos");
+await expense.getByLabel("Monto").fill("780000");
+await expense.getByRole("button", { name: "Agregar gasto" }).click();
+await page.getByText("Ladrillos huecos", { exact: true }).waitFor();
+
 await page.screenshot({ path: "artifacts/gb-construction-dashboard.png", fullPage: true });
-
-const dashboardVisible = await page.getByText("Obra Demo Palermo").count();
-const materialVisible = await page.getByText("Ladrillo hueco 12").count();
-
 await browser.close();
-
-if (!dashboardVisible || !materialVisible) {
-  throw new Error("Smoke test failed: expected dashboard records were not visible.");
-}
 
 console.log("Smoke test passed");

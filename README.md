@@ -9,10 +9,13 @@ Produccion: https://gb-construction-assistant.guidoscopel-gb.workers.dev
 - Landing en español para profesionales de la construcción.
 - Login/registro simulado.
 - Dashboard con métricas consolidadas del estudio y las obras.
-- Seguimiento por obra basado exclusivamente en certificaciones y gastos.
+- Presupuestos editables tipo planilla, duplicables y convertibles en obra.
+- Seguimiento por obra con avance real, certificaciones, cobros, gastos y desvíos.
+- Estados sensibles de certificaciones y gastos con confirmación adicional.
+- Materiales reales integrados como gastos de obra, sin módulo duplicado.
+- Catálogos editables de categorías y subcategorías para obra y estudio.
 - Finanzas administrativas del estudio separadas de los costos de obra.
-- Materiales vinculados a obras existentes mediante selector.
-- Equipo asignable a múltiples obras.
+- Equipo activo/inactivo con asignaciones y tareas específicas por obra.
 - Persistencia local en el navegador con `localStorage`.
 
 ## Desarrollo
