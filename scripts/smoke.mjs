@@ -5,6 +5,10 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 
 await page.goto("http://127.0.0.1:8791/", { waitUntil: "domcontentloaded" });
 await page.getByRole("button", { name: "Comenzar gratis" }).click();
+if ((await page.getByLabel("Email").inputValue()) !== "") throw new Error("Email should start empty");
+if ((await page.getByLabel("Contrasena").inputValue()) !== "") throw new Error("Password should start empty");
+if ((await page.getByLabel("Email").getAttribute("placeholder")) !== null) throw new Error("Email placeholder should be empty");
+if ((await page.getByLabel("Contrasena").getAttribute("placeholder")) !== null) throw new Error("Password placeholder should be empty");
 await page.getByLabel("Email").fill("test@test");
 await page.getByLabel("Contrasena").fill("GB2026");
 await page.getByRole("button", { name: "Entrar al dashboard" }).click();

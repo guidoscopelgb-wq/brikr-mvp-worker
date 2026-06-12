@@ -15,6 +15,10 @@ with sync_playwright() as p:
     page.wait_for_load_state("load")
 
     page.get_by_role("button", name="Comenzar gratis").click()
+    expect(page.get_by_label("Email")).to_have_value("")
+    expect(page.get_by_label("Contrasena")).to_have_value("")
+    assert page.get_by_label("Email").get_attribute("placeholder") is None
+    assert page.get_by_label("Contrasena").get_attribute("placeholder") is None
     page.get_by_label("Email").fill("test@test")
     page.get_by_label("Contrasena").fill("incorrecta")
     page.get_by_role("button", name="Entrar al dashboard").click()

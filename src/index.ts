@@ -365,10 +365,10 @@ const html = String.raw`<!doctype html>
   <div class="modal-backdrop" id="authModal">
     <div class="modal">
       <h2 id="authTitle">Crear cuenta</h2>
-      <p class="micro">Usuario: <b>test@test</b> · Contrasena: <b>GB2026</b></p>
-      <form id="authForm">
-        <label>Email<input id="email" type="email" autocomplete="email" required placeholder="test@test"></label>
-        <label>Contrasena<input id="password" type="password" autocomplete="current-password" required minlength="4" placeholder="GB2026"></label>
+      <p class="micro">Ingresa tus datos para acceder al sistema.</p>
+      <form id="authForm" autocomplete="off">
+        <label>Email<input id="email" type="email" autocomplete="off" required></label>
+        <label>Contrasena<input id="password" type="password" autocomplete="new-password" required minlength="4"></label>
         <div id="authError" class="alert danger hidden" role="alert">Email o contrasena incorrectos.</div>
         <button class="btn primary" type="submit">Entrar al dashboard</button>
         <button class="btn ghost" type="button" id="closeModal">Cancelar</button>
@@ -795,6 +795,7 @@ const html = String.raw`<!doctype html>
     document.querySelectorAll('[data-auth]').forEach(btn => btn.addEventListener('click', () => {
       authTitle.textContent = btn.dataset.auth === 'login' ? 'Iniciar sesion' : 'Crear cuenta';
       authError.classList.add('hidden');
+      authForm.reset();
       authModal.style.display = 'grid';
       email.focus();
     }));
