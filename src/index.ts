@@ -167,6 +167,17 @@ const html = String.raw`<!doctype html>
     .sheet td { min-width: 112px; }
     .sheet td.wide { min-width: 210px; }
     .sheet-total { font-weight: 900; color: var(--brand-strong); }
+    .subitem-list { display: grid; gap: 7px; margin-top: 9px; }
+    .subitem { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; background: #f8faf7; }
+    .subitem b { display: block; font-size: 13px; }
+    .subitem span { color: var(--muted); font-size: 12px; }
+    .subitem-editor { display: grid; grid-template-columns: 130px minmax(180px, 1fr) 86px 90px 120px auto; gap: 8px; align-items: end; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: white; }
+    .subitem-editor label { min-width: 0; }
+    .subitem-editor input, .subitem-editor select { min-height: 40px; padding: 8px 9px; }
+    .detail-grid .subitem-editor { grid-template-columns: 1fr 1fr; }
+    .detail-grid .subitem-editor label:nth-child(2), .detail-grid .subitem-editor .btn { grid-column: 1 / -1; }
+    .role-badge { display: inline-flex; align-items: center; min-height: 27px; padding: 0 9px; border-radius: 999px; background: #e8f0f6; color: #254f6e; font-size: 12px; font-weight: 850; }
+    .permission-note { padding: 10px 12px; border-left: 4px solid var(--brand-3); background: #eef5fa; color: #254f6e; font-size: 13px; }
     .alert { border-left: 4px solid var(--brand-2); padding: 11px 13px; background: #fff8e8; color: #654912; font-size: 13px; }
     .alert.danger { border-left-color: var(--danger); background: var(--danger-soft); color: #752c26; }
     .alert.ok { border-left-color: var(--brand); background: var(--ok-soft); color: var(--brand-strong); }
@@ -211,10 +222,11 @@ const html = String.raw`<!doctype html>
       .grid, .steps, .stat-grid { grid-template-columns: repeat(2, 1fr); }
       .app { grid-template-columns: 1fr; }
       .side { position: static; height: auto; }
-      .tabs { grid-template-columns: repeat(4, 1fr); }
+      .tabs { grid-template-columns: repeat(5, 1fr); }
       .project-row { grid-template-columns: 1fr 1fr; }
       .project-row .actions { justify-content: flex-start; }
       .module-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .subitem-editor { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 640px) {
       .nav { align-items: flex-start; }
@@ -235,6 +247,7 @@ const html = String.raw`<!doctype html>
       .detail-header { align-items: flex-start; }
       .inline-form { grid-template-columns: 1fr; }
       .inline-form .full, .inline-form .btn { grid-column: auto; }
+      .subitem-editor { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -340,12 +353,13 @@ const html = String.raw`<!doctype html>
         <button class="tab" data-view="presupuestos">Presupuestos</button>
         <button class="tab" data-view="finanzas">Estudio</button>
         <button class="tab" data-view="equipo">Equipo</button>
+        <button class="tab hidden" data-view="usuarios" data-owner-only>Usuarios</button>
       </div>
     </aside>
     <main class="main">
       <div class="top">
         <div><h2 id="viewTitle">Obras</h2><p class="micro" id="viewSub">Resumen operativo de tus proyectos activos.</p></div>
-        <button class="btn ghost" id="logout">Cerrar sesion</button>
+        <div class="actions"><span class="role-badge" id="currentUserLabel"></span><button class="btn ghost" id="logout">Cerrar sesion</button></div>
       </div>
       <section class="module-stats" id="stats"></section>
       <section id="viewContent"></section>
@@ -398,16 +412,20 @@ const html = String.raw`<!doctype html>
         {
           id: 'pres-torre', nombre: 'Presupuesto Torre Belgrano', cliente: 'Grupo Norte', estado: 'Aprobado', obraId: 'obra-torre',
           items: [
-            { id: 'item-1', certificado: '1', trabajo: 'Estructura niveles 1 a 4', manoObra: 'Cuadrilla de hormigon', materiales: 'Hormigon, hierro y encofrado', montoManoObra: 1800000, montoMateriales: 3200000, montoDireccion: 500000, dias: 35 },
-            { id: 'item-2', certificado: '1', trabajo: 'Mamposteria planta baja', manoObra: 'Oficiales y ayudantes', materiales: 'Ladrillos y mezcla', montoManoObra: 900000, montoMateriales: 1100000, montoDireccion: 250000, dias: 18 },
-            { id: 'item-3', certificado: '2', trabajo: 'Instalaciones sanitarias', manoObra: 'Equipo sanitario', materiales: 'Canerias y accesorios', montoManoObra: 1200000, montoMateriales: 1850000, montoDireccion: 300000, dias: 24 }
+            { id: 'item-1', certificado: '1', tipo: 'Material', descripcion: 'Cemento Portland', cantidad: 400, unidad: 'bolsas', precioUnitario: 8500, dias: 0 },
+            { id: 'item-2', certificado: '1', tipo: 'Material', descripcion: 'Arena gruesa', cantidad: 35, unidad: 'm3', precioUnitario: 32000, dias: 0 },
+            { id: 'item-3', certificado: '1', tipo: 'Material', descripcion: 'Cal hidratada', cantidad: 120, unidad: 'bolsas', precioUnitario: 6200, dias: 0 },
+            { id: 'item-4', certificado: '1', tipo: 'Mano de obra', descripcion: 'Cuadrilla de estructura y mamposteria', cantidad: 1, unidad: 'global', precioUnitario: 2700000, dias: 53 },
+            { id: 'item-5', certificado: '1', tipo: 'Direccion tecnica', descripcion: 'Direccion y control certificado 1', cantidad: 1, unidad: 'global', precioUnitario: 750000, dias: 0 },
+            { id: 'item-6', certificado: '2', tipo: 'Material', descripcion: 'Canerias y accesorios sanitarios', cantidad: 1, unidad: 'global', precioUnitario: 1850000, dias: 0 },
+            { id: 'item-7', certificado: '2', tipo: 'Mano de obra', descripcion: 'Instalacion sanitaria', cantidad: 1, unidad: 'global', precioUnitario: 1200000, dias: 24 }
           ]
         }
       ],
       certificaciones: [
-        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-04', concepto: 'Estructura nivel 8', monto: 2850000, estado: 'Aprobada' },
-        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-05', concepto: 'Mamposteria nivel 5', monto: 1980000, estado: 'Presentada' },
-        { id: crypto.randomUUID(), obraId: 'obra-central', presupuestoCertificado: '', periodo: '2026-05', concepto: 'Terminaciones finales', monto: 4300000, estado: 'Cobrada' }
+        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-04', concepto: 'Estructura nivel 8', monto: 2850000, estado: 'Aprobada', subitems: [{ id: crypto.randomUUID(), tipo: 'Material', descripcion: 'Hormigon elaborado', cantidad: 1, unidad: 'global', precioUnitario: 1650000 }, { id: crypto.randomUUID(), tipo: 'Mano de obra', descripcion: 'Cuadrilla de hormigon', cantidad: 1, unidad: 'global', precioUnitario: 1200000 }] },
+        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-05', concepto: 'Mamposteria nivel 5', monto: 1980000, estado: 'Pendiente de aprobacion', subitems: [{ id: crypto.randomUUID(), tipo: 'Material', descripcion: 'Ladrillos huecos', cantidad: 1, unidad: 'global', precioUnitario: 1080000 }, { id: crypto.randomUUID(), tipo: 'Mano de obra', descripcion: 'Colocacion de mamposteria', cantidad: 1, unidad: 'global', precioUnitario: 900000 }] },
+        { id: crypto.randomUUID(), obraId: 'obra-central', presupuestoCertificado: '', periodo: '2026-05', concepto: 'Terminaciones finales', monto: 4300000, estado: 'Cobrada', subitems: [{ id: crypto.randomUUID(), tipo: 'Trabajo', descripcion: 'Terminaciones finales', cantidad: 1, unidad: 'global', precioUnitario: 4300000 }] }
       ],
       gastosObra: [
         { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-08', categoria: 'Mano de obra', subcategoria: 'Contratistas externos', concepto: 'Cuadrilla estructura', monto: 1480000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1' },
@@ -422,6 +440,9 @@ const html = String.raw`<!doctype html>
       equipo: [
         { id: crypto.randomUUID(), nombre: 'Julia Benitez', rol: 'Arquitecta', activo: true, asignaciones: [{ obraId: 'obra-torre', tarea: 'Revision de estructura' }, { obraId: 'obra-residencia', tarea: 'Anteproyecto ejecutivo' }] },
         { id: crypto.randomUUID(), nombre: 'Martin Paz', rol: 'Supervisor', activo: true, asignaciones: [{ obraId: 'obra-torre', tarea: 'Coordinacion de contratistas' }, { obraId: 'obra-central', tarea: 'Control de entrega' }] }
+      ],
+      usuarios: [
+        { id: 'user-owner', nombre: 'Propietario principal', email: 'test@test', password: 'GB2026', tipo: 'Propietario', activo: true, obraIds: [] }
       ],
       catalogos: {
         obra: {
@@ -440,9 +461,10 @@ const html = String.raw`<!doctype html>
     };
     const views = {
       obras: ['Obras', 'Cartera, certificaciones, cobros y desvios por proyecto.'],
-      presupuestos: ['Presupuestos', 'Planillas detalladas por certificacion, trabajo, materiales y tiempos.'],
+      presupuestos: ['Presupuestos', 'Certificaciones presupuestadas con materiales y trabajos desglosados en subitems.'],
       finanzas: ['Finanzas del estudio', 'Ingresos y egresos administrativos separados de las obras.'],
-      equipo: ['Equipo', 'Personas, disponibilidad, obras asignadas y tareas actuales.']
+      equipo: ['Equipo', 'Personas, disponibilidad, obras asignadas y tareas actuales.'],
+      usuarios: ['Usuarios', 'Accesos internos, roles y proyectos habilitados.']
     };
     const legacyState = localStorage.getItem('brikr-mvp');
     if (legacyState && !localStorage.getItem('gb-construction-assistant')) {
@@ -453,8 +475,58 @@ const html = String.raw`<!doctype html>
       state.obras = Array.isArray(state.obras) ? state.obras : [];
       state.obras = state.obras.map(({ avanceReal, avance, ...obra }) => ({ ...obra, presupuestoId: obra.presupuestoId || '', presupuesto: number(obra.presupuesto) }));
       state.presupuestos = Array.isArray(state.presupuestos) ? state.presupuestos : [];
-      state.presupuestos = state.presupuestos.map(presupuesto => ({ ...presupuesto, items: Array.isArray(presupuesto.items) ? presupuesto.items : [] }));
-      state.certificaciones = (state.certificaciones || []).map(item => ({ ...item, estado: ['Presentada', 'Aprobada', 'Cobrada'].includes(item.estado) ? item.estado : 'Presentada' }));
+      state.presupuestos = state.presupuestos.map(presupuesto => {
+        const sourceItems = Array.isArray(presupuesto.items) ? presupuesto.items : [];
+        const items = sourceItems.flatMap(item => {
+          if (item.tipo || item.descripcion || item.precioUnitario !== undefined) {
+            return [{
+              id: item.id || crypto.randomUUID(),
+              certificado: item.certificado || '',
+              tipo: item.tipo || 'Trabajo',
+              descripcion: item.descripcion || item.trabajo || 'Item presupuestado',
+              cantidad: number(item.cantidad || 1),
+              unidad: item.unidad || 'global',
+              precioUnitario: number(item.precioUnitario),
+              dias: number(item.dias)
+            }];
+          }
+          const legacy = [
+            ['Mano de obra', item.manoObra || item.trabajo, item.montoManoObra],
+            ['Material', item.materiales || item.trabajo, item.montoMateriales],
+            ['Direccion tecnica', 'Direccion tecnica - ' + (item.trabajo || 'Trabajo'), item.montoDireccion]
+          ].filter(([, , amount]) => number(amount) > 0);
+          return legacy.map(([tipo, descripcion, amount], index) => ({
+            id: index ? crypto.randomUUID() : (item.id || crypto.randomUUID()),
+            certificado: item.certificado || '',
+            tipo,
+            descripcion: descripcion || item.trabajo || 'Item presupuestado',
+            cantidad: 1,
+            unidad: 'global',
+            precioUnitario: number(amount),
+            dias: index === 0 ? number(item.dias) : 0
+          }));
+        });
+        return { ...presupuesto, items };
+      });
+      state.certificaciones = (state.certificaciones || []).map(item => {
+        const estado = item.estado === 'Presentada' ? 'Pendiente de aprobacion' : item.estado;
+        const subitems = Array.isArray(item.subitems) && item.subitems.length
+          ? item.subitems.map(subitem => ({
+              id: subitem.id || crypto.randomUUID(),
+              tipo: subitem.tipo || 'Trabajo',
+              descripcion: subitem.descripcion || item.concepto || 'Subitem',
+              cantidad: number(subitem.cantidad || 1),
+              unidad: subitem.unidad || 'global',
+              precioUnitario: number(subitem.precioUnitario ?? subitem.monto)
+            }))
+          : [{ id: crypto.randomUUID(), tipo: 'Trabajo', descripcion: item.concepto || 'Certificacion', cantidad: 1, unidad: 'global', precioUnitario: number(item.monto) }];
+        return {
+          ...item,
+          estado: ['Pendiente de aprobacion', 'Aprobada', 'Cobrada'].includes(estado) ? estado : 'Pendiente de aprobacion',
+          subitems,
+          monto: subitems.reduce((sum, subitem) => sum + number(subitem.cantidad) * number(subitem.precioUnitario), 0)
+        };
+      });
       state.gastosObra = Array.isArray(state.gastosObra) ? state.gastosObra : (state.finanzas || []).filter(item => item.obra).map(item => ({
         id: item.id || crypto.randomUUID(),
         obraId: (state.obras.find(obra => obra.nombre === item.obra) || {}).id || '',
@@ -496,6 +568,17 @@ const html = String.raw`<!doctype html>
           ? persona.asignaciones
           : (persona.obraIds || [((state.obras.find(obra => obra.nombre === persona.obra) || {}).id || '')].filter(Boolean)).map(obraId => ({ obraId, tarea: '' }))
       }));
+      state.usuarios = Array.isArray(state.usuarios) && state.usuarios.length ? state.usuarios : structuredClone(seed.usuarios);
+      state.usuarios = state.usuarios.map(usuario => ({
+        ...usuario,
+        id: usuario.id || crypto.randomUUID(),
+        nombre: usuario.nombre || usuario.email,
+        email: String(usuario.email || '').trim().toLowerCase(),
+        password: usuario.password || '',
+        tipo: usuario.tipo === 'Supervisor' ? 'Supervisor' : 'Propietario',
+        activo: usuario.activo !== false,
+        obraIds: Array.isArray(usuario.obraIds) ? usuario.obraIds : []
+      }));
       state.catalogos = state.catalogos || structuredClone(seed.catalogos);
       state.catalogos.obra = state.catalogos.obra || structuredClone(seed.catalogos.obra);
       state.catalogos.estudio = state.catalogos.estudio || structuredClone(seed.catalogos.estudio);
@@ -513,11 +596,57 @@ const html = String.raw`<!doctype html>
     const save = () => localStorage.setItem('gb-construction-assistant', JSON.stringify(state));
     const notify = text => { toast.textContent = text; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2200); };
     const budgetById = id => state.presupuestos.find(item => item.id === id);
-    const budgetItemTotal = item => number(item.montoManoObra) + number(item.montoMateriales) + number(item.montoDireccion);
+    const currentUser = () => state.usuarios.find(usuario => usuario.email === localStorage.getItem('gb-construction-user') && usuario.activo);
+    const isOwner = () => currentUser()?.tipo === 'Propietario';
+    const canAccessObra = obraId => isOwner() || Boolean(currentUser()?.obraIds.includes(obraId));
+    const visibleObras = () => state.obras.filter(obra => canAccessObra(obra.id));
+    const budgetItemTotal = item => number(item.cantidad) * number(item.precioUnitario);
     const budgetTotal = presupuesto => (presupuesto?.items || []).reduce((sum, item) => sum + budgetItemTotal(item), 0);
-    const budgetDays = presupuesto => (presupuesto?.items || []).reduce((sum, item) => sum + number(item.dias), 0);
+    const budgetDays = presupuesto => Object.values((presupuesto?.items || []).reduce((groups, item) => {
+      groups[item.certificado || 'sin-certificado'] = Math.max(groups[item.certificado || 'sin-certificado'] || 0, number(item.dias));
+      return groups;
+    }, {})).reduce((sum, days) => sum + number(days), 0);
+    const certificateTotal = certificate => (certificate.subitems || []).reduce((sum, subitem) => sum + number(subitem.cantidad) * number(subitem.precioUnitario), 0);
     const projectCertificates = obraId => state.certificaciones.filter(item => item.obraId === obraId);
     const projectExpenses = obraId => state.gastosObra.filter(item => item.obraId === obraId);
+    const itemTypeOptions = selected => ['Material', 'Mano de obra', 'Direccion tecnica', 'Trabajo', 'Otro'].map(value => '<option' + (value === selected ? ' selected' : '') + '>' + value + '</option>').join('');
+    const certificateSubitemEditor = (subitem = {}) =>
+      '<div class="subitem-editor" data-certificate-subitem>' +
+        '<label>Tipo<select data-subitem-field="tipo">' + itemTypeOptions(subitem.tipo || 'Material') + '</select></label>' +
+        '<label>Item / subitem<input data-subitem-field="descripcion" value="' + escapeHtml(subitem.descripcion || '') + '" required></label>' +
+        '<label>Cantidad<input data-subitem-field="cantidad" type="number" min="0" step="0.01" value="' + number(subitem.cantidad || 1) + '" required></label>' +
+        '<label>Unidad<input data-subitem-field="unidad" value="' + escapeHtml(subitem.unidad || 'unidad') + '" required></label>' +
+        '<label>Precio unitario<input data-subitem-field="precioUnitario" type="number" min="0" step="0.01" value="' + number(subitem.precioUnitario) + '" required></label>' +
+        '<button class="btn warn small" type="button" data-remove-certificate-subitem>Quitar</button>' +
+      '</div>';
+    const updateCertificateFormTotal = form => {
+      const total = [...form.querySelectorAll('[data-certificate-subitem]')].reduce((sum, row) => {
+        return sum + number(row.querySelector('[data-subitem-field="cantidad"]')?.value) * number(row.querySelector('[data-subitem-field="precioUnitario"]')?.value);
+      }, 0);
+      const output = form.querySelector('[data-certificate-total]');
+      if (output) output.textContent = 'Total de la certificacion: ' + money(total);
+    };
+    const importBudgetCertificateSubitems = form => {
+      if (!isOwner() || form.elements.montoModo?.value !== 'presupuesto' || !form.elements.presupuestoCertificado?.value) return;
+      const obra = obraById(selectedProjectId);
+      const presupuesto = budgetById(obra?.presupuestoId);
+      const items = presupuesto?.items.filter(item => item.certificado === form.elements.presupuestoCertificado.value) || [];
+      const container = form.querySelector('[data-certificate-subitems]');
+      container.innerHTML = items.length ? items.map(item => certificateSubitemEditor(item)).join('') : certificateSubitemEditor();
+      updateCertificateFormTotal(form);
+    };
+    const updateBudgetDetailSummary = presupuesto => {
+      const values = {
+        total: money(budgetTotal(presupuesto)),
+        labor: money(presupuesto.items.filter(item => item.tipo === 'Mano de obra').reduce((sum, item) => sum + budgetItemTotal(item), 0)),
+        materials: money(presupuesto.items.filter(item => item.tipo === 'Material').reduce((sum, item) => sum + budgetItemTotal(item), 0)),
+        certificates: new Set(presupuesto.items.map(item => item.certificado).filter(Boolean)).size
+      };
+      Object.entries(values).forEach(([key, value]) => {
+        const element = detailContent.querySelector('[data-budget-summary="' + key + '"]');
+        if (element) element.textContent = value;
+      });
+    };
     const categoryOptions = scope => Object.keys(state.catalogos[scope] || {}).map(category => '<option>' + escapeHtml(category) + '</option>').join('');
     const subcategoryOptions = (scope, category, selected = '') => ((state.catalogos[scope] || {})[category] || []).map(value => '<option' + (value === selected ? ' selected' : '') + '>' + escapeHtml(value) + '</option>').join('');
     const askConfirm = message => new Promise(resolve => {
@@ -533,18 +662,46 @@ const html = String.raw`<!doctype html>
       confirmCancel.onclick = () => finish(false);
     });
     const metricCards = items => items.map(([label, value, tone]) => '<div class="metric"><b class="' + (tone || '') + '">' + value + '</b><span>' + label + '</span></div>').join('');
-    function openApp() { site.style.display = 'none'; app.style.display = 'grid'; render(); }
+    function configureNavigation() {
+      const usuario = currentUser();
+      const allowedViews = usuario?.tipo === 'Supervisor' ? ['obras', 'equipo'] : Object.keys(views);
+      document.querySelectorAll('.tab').forEach(tab => {
+        const allowed = allowedViews.includes(tab.dataset.view);
+        tab.classList.toggle('hidden', !allowed);
+        tab.disabled = !allowed;
+      });
+      document.querySelectorAll('[data-owner-only]').forEach(element => element.classList.toggle('hidden', !isOwner()));
+      if (!allowedViews.includes(current)) current = 'obras';
+      currentUserLabel.textContent = (usuario?.nombre || '') + ' · ' + (usuario?.tipo || '');
+    }
+    function openApp() { site.style.display = 'none'; app.style.display = 'grid'; current = 'obras'; configureNavigation(); render(); }
     function renderStats() {
       if (current === 'obras') {
-        const active = state.obras.filter(item => item.estado !== 'Finalizada');
-        const finished = state.obras.filter(item => item.estado === 'Finalizada');
+        const works = visibleObras();
+        const active = works.filter(item => item.estado !== 'Finalizada');
+        const finished = works.filter(item => item.estado === 'Finalizada');
+        if (!isOwner()) {
+          const workIds = new Set(works.map(item => item.id));
+          const certificates = state.certificaciones.filter(item => workIds.has(item.obraId));
+          const expenses = state.gastosObra.filter(item => workIds.has(item.obraId));
+          const assignedPeople = state.equipo.filter(persona => persona.asignaciones.some(item => workIds.has(item.obraId))).length;
+          stats.innerHTML = metricCards([
+            ['Obras habilitadas', works.length],
+            ['En curso', active.length],
+            ['Certificados pendientes', certificates.filter(item => item.estado === 'Pendiente de aprobacion').length],
+            ['Gastos pendientes', expenses.filter(item => item.estado === 'Pendiente de pago').length],
+            ['Gastos registrados', money(expenses.reduce((sum, item) => sum + number(item.monto), 0))],
+            ['Personal visible', assignedPeople]
+          ]);
+          return;
+        }
         const quoted = active.reduce((sum, item) => sum + number(item.presupuesto), 0);
-        const certified = state.certificaciones.reduce((sum, item) => sum + number(item.monto), 0);
-        const collected = state.certificaciones.filter(item => item.estado === 'Cobrada').reduce((sum, item) => sum + number(item.monto), 0);
+        const certified = state.certificaciones.reduce((sum, item) => sum + certificateTotal(item), 0);
+        const collected = state.certificaciones.filter(item => item.estado === 'Cobrada').reduce((sum, item) => sum + certificateTotal(item), 0);
         const spent = state.gastosObra.reduce((sum, item) => sum + number(item.monto), 0);
         const alerts = state.obras.filter(obra => {
           const spent = projectExpenses(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
-          const certified = projectCertificates(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
+          const certified = projectCertificates(obra.id).reduce((sum, item) => sum + certificateTotal(item), 0);
           const certifiedPct = number(obra.presupuesto) ? certified / number(obra.presupuesto) * 100 : 0;
           return spent > number(obra.presupuesto) * Math.max(certifiedPct / 100, .15);
         }).length;
@@ -579,9 +736,11 @@ const html = String.raw`<!doctype html>
         ]);
       }
       if (current === 'equipo') {
-        const activePeople = state.equipo.filter(item => item.activo);
+        const workIds = new Set(visibleObras().map(item => item.id));
+        const availablePeople = isOwner() ? state.equipo : state.equipo.filter(persona => persona.asignaciones.some(item => workIds.has(item.obraId)));
+        const activePeople = availablePeople.filter(item => item.activo);
         const assigned = activePeople.filter(item => item.asignaciones.length);
-        const activeWorks = state.obras.filter(item => item.estado !== 'Finalizada');
+        const activeWorks = visibleObras().filter(item => item.estado !== 'Finalizada');
         const worksWithTeam = activeWorks.filter(obra => activePeople.some(person => person.asignaciones.some(item => item.obraId === obra.id)));
         stats.innerHTML = metricCards([
           ['Personas activas', activePeople.length], ['Asignadas', assigned.length], ['Sin asignacion', activePeople.length - assigned.length],
@@ -590,27 +749,42 @@ const html = String.raw`<!doctype html>
           ['Tareas activas', activePeople.reduce((sum, item) => sum + item.asignaciones.filter(task => task.tarea).length, 0)]
         ]);
       }
+      if (current === 'usuarios') {
+        const activeUsers = state.usuarios.filter(item => item.activo);
+        stats.innerHTML = metricCards([
+          ['Usuarios', state.usuarios.length],
+          ['Activos', activeUsers.length],
+          ['Propietarios', state.usuarios.filter(item => item.tipo === 'Propietario').length],
+          ['Supervisores', state.usuarios.filter(item => item.tipo === 'Supervisor').length],
+          ['Proyectos habilitados', state.usuarios.reduce((sum, item) => sum + item.obraIds.length, 0)]
+        ]);
+      }
     }
     function renderObras() {
-      const rows = state.obras.length ? state.obras.map(obra => {
+      const works = visibleObras();
+      const rows = works.length ? works.map(obra => {
         const certificates = projectCertificates(obra.id);
-        const certified = certificates.reduce((sum, item) => sum + number(item.monto), 0);
+        const certified = certificates.reduce((sum, item) => sum + certificateTotal(item), 0);
         const certifiedPct = number(obra.presupuesto) ? Math.round(certified / number(obra.presupuesto) * 100) : 0;
         const expenses = projectExpenses(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
         const expectedSpend = number(obra.presupuesto) * certifiedPct / 100;
         const deviation = expenses - expectedSpend;
         const alertClass = deviation > number(obra.presupuesto) * .08 ? 'danger' : 'ok';
+        const costStatus = isOwner()
+          ? '<span class="alert ' + alertClass + '">' + (deviation > 0 ? 'Sobre' : 'Bajo') + ' curva: ' + money(Math.abs(deviation)) + '</span>'
+          : '<span class="project-meta">Gastos registrados</span>';
         return '<article class="project-row">' +
           '<div><div class="project-name">' + escapeHtml(obra.nombre) + '</div><div class="project-meta">' + escapeHtml(obra.cliente) + '</div></div>' +
           '<div><span class="pill">' + escapeHtml(obra.estado) + '</span></div>' +
           '<div class="progress-cell"><b>' + certifiedPct + '% certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div></div>' +
-          '<div class="project-cost"><b>' + money(expenses) + '</b><span class="alert ' + alertClass + '">' + (deviation > 0 ? 'Sobre' : 'Bajo') + ' curva: ' + money(Math.abs(deviation)) + '</span></div>' +
-          '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button><button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button></div>' +
+          '<div class="project-cost"><b>' + money(expenses) + '</b>' + costStatus + '</div>' +
+          '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button>' + (isOwner() ? '<button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button>' : '') + '</div>' +
         '</article>';
-      }).join('') : '<div class="empty">Todavia no hay obras. Crea la primera desde el formulario.</div>';
+      }).join('') : '<div class="empty">No hay obras habilitadas para este usuario.</div>';
       const budgetOptions = state.presupuestos.filter(item => !item.obraId).map(item => '<option value="' + escapeHtml(item.id) + '">' + escapeHtml(item.nombre) + ' · ' + money(budgetTotal(item)) + '</option>').join('');
       viewContent.innerHTML =
-        '<div class="view-grid"><section class="panel"><div class="toolbar"><label>Filtrar por estado<select data-filter="project-status"><option value="">Todos</option><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label><label>Buscar<input data-filter="project-search" placeholder="Obra o cliente"></label></div><div class="section-head"><div><h3>Cartera de obras</h3><p>Seguimiento económico, operativo y administrativo.</p></div></div><div class="project-list" id="projectList">' + rows + '</div></section>' +
+        '<div class="' + (isOwner() ? 'view-grid' : '') + '"><section class="panel"><div class="toolbar"><label>Filtrar por estado<select data-filter="project-status"><option value="">Todos</option><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label><label>Buscar<input data-filter="project-search" placeholder="Obra o cliente"></label></div><div class="section-head"><div><h3>Cartera de obras</h3><p>' + (isOwner() ? 'Seguimiento económico, operativo y administrativo.' : 'Solo se muestran las obras habilitadas para tu usuario.') + '</p></div></div><div class="project-list" id="projectList">' + rows + '</div></section>' +
+        (isOwner() ?
         '<form class="form" data-form="obra"><h3>Nueva obra</h3>' +
           '<label>Origen<select name="origen" data-project-origin><option value="cero">Crear desde cero</option><option value="presupuesto">Crear desde presupuesto</option></select></label>' +
           '<label class="hidden" data-budget-field>Presupuesto existente<select name="presupuestoId"><option value="">Seleccionar presupuesto</option>' + budgetOptions + '</select></label>' +
@@ -619,7 +793,7 @@ const html = String.raw`<!doctype html>
           '<label>Estado<select name="estado" required><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label>' +
           '<label>Monto total cotizado<input name="presupuesto" type="number" min="0" required></label>' +
           '<label class="hidden toggle-row" data-import-field><span>Importar certificaciones presupuestadas</span><input name="importarCertificados" type="checkbox" checked></label>' +
-          '<button class="btn primary" type="submit">Crear obra</button></form></div>';
+          '<button class="btn primary" type="submit">Crear obra</button></form>' : '') + '</div>';
     }
     function renderBudgets() {
       const rows = state.presupuestos.length ? state.presupuestos.map(item => {
@@ -627,36 +801,38 @@ const html = String.raw`<!doctype html>
         return '<tr><td><b>' + escapeHtml(item.nombre) + '</b><div class="project-meta">' + escapeHtml(item.cliente || 'Sin cliente') + '</div></td><td><span class="pill">' + escapeHtml(item.estado) + '</span></td><td>' + item.items.length + '</td><td>' + money(total) + '</td><td>' + budgetDays(item) + ' dias</td><td>' + escapeHtml(item.obraId ? obraName(item.obraId) : 'Sin convertir') + '</td><td><div class="actions"><button class="btn secondary small" type="button" data-open-budget="' + item.id + '">Editar planilla</button><button class="btn ghost small" type="button" data-duplicate-budget="' + item.id + '">Duplicar</button><button class="btn warn small" type="button" data-delete-budget="' + item.id + '">Eliminar</button></div></td></tr>';
       }).join('') : '<tr><td colspan="7" class="empty">No hay presupuestos cargados.</td></tr>';
       viewContent.innerHTML =
-        '<div class="view-grid"><section class="panel"><div class="toolbar"><label>Estado<select data-filter="budget-status"><option value="">Todos</option><option>Pendiente</option><option>Aprobado</option><option>Rechazado</option></select></label><label>Buscar<input data-filter="budget-search" placeholder="Presupuesto o cliente"></label></div><div class="table-wrap"><table><thead><tr><th>PRESUPUESTO</th><th>ESTADO</th><th>ITEMS</th><th>TOTAL</th><th>PLAZO</th><th>OBRA</th><th></th></tr></thead><tbody id="budgetRows">' + rows + '</tbody></table></div></section>' +
+        '<div class="view-grid"><section class="panel"><div class="toolbar"><label>Estado<select data-filter="budget-status"><option value="">Todos</option><option>Pendiente</option><option>Aprobado</option><option>Rechazado</option></select></label><label>Buscar<input data-filter="budget-search" placeholder="Presupuesto o cliente"></label></div><div class="table-wrap"><table><thead><tr><th>PRESUPUESTO</th><th>ESTADO</th><th>SUBITEMS</th><th>TOTAL</th><th>PLAZO</th><th>OBRA</th><th></th></tr></thead><tbody id="budgetRows">' + rows + '</tbody></table></div></section>' +
         '<form class="form" data-form="budget"><h3>Nuevo presupuesto</h3><label>Nombre<input name="nombre" required></label><label>Cliente<input name="cliente" required></label><label>Estado<select name="estado"><option>Pendiente</option><option>Aprobado</option><option>Rechazado</option></select></label><button class="btn primary" type="submit">Crear presupuesto</button><div class="helper">Luego podrás cargar y editar los ítems en una planilla.</div></form></div>';
     }
     function renderBudgetDetail(id) {
+      if (!isOwner()) return;
       const presupuesto = budgetById(id);
       if (!presupuesto) return;
       selectedProjectId = null;
+      delete projectDetail.dataset.personId;
+      delete projectDetail.dataset.userId;
       projectDetail.dataset.budgetId = id;
       detailTitle.textContent = presupuesto.nombre;
       detailSubtitle.textContent = presupuesto.cliente + ' · ' + presupuesto.estado;
-      const labor = presupuesto.items.reduce((sum, item) => sum + number(item.montoManoObra), 0);
-      const materials = presupuesto.items.reduce((sum, item) => sum + number(item.montoMateriales), 0);
-      const direction = presupuesto.items.reduce((sum, item) => sum + number(item.montoDireccion), 0);
+      const labor = presupuesto.items.filter(item => item.tipo === 'Mano de obra').reduce((sum, item) => sum + budgetItemTotal(item), 0);
+      const materials = presupuesto.items.filter(item => item.tipo === 'Material').reduce((sum, item) => sum + budgetItemTotal(item), 0);
       const rows = presupuesto.items.map(item =>
         '<tr data-budget-item="' + item.id + '">' +
           '<td><input data-budget-field="certificado" value="' + escapeHtml(item.certificado) + '"></td>' +
-          '<td class="wide"><textarea data-budget-field="trabajo">' + escapeHtml(item.trabajo) + '</textarea></td>' +
-          '<td class="wide"><textarea data-budget-field="manoObra">' + escapeHtml(item.manoObra) + '</textarea></td>' +
-          '<td class="wide"><textarea data-budget-field="materiales">' + escapeHtml(item.materiales) + '</textarea></td>' +
-          '<td><input data-budget-field="montoManoObra" type="number" min="0" value="' + number(item.montoManoObra) + '"></td>' +
-          '<td><input data-budget-field="montoMateriales" type="number" min="0" value="' + number(item.montoMateriales) + '"></td>' +
-          '<td><input data-budget-field="montoDireccion" type="number" min="0" value="' + number(item.montoDireccion) + '"></td>' +
+          '<td><select data-budget-field="tipo">' + itemTypeOptions(item.tipo) + '</select></td>' +
+          '<td class="wide"><textarea data-budget-field="descripcion">' + escapeHtml(item.descripcion) + '</textarea></td>' +
+          '<td><input data-budget-field="cantidad" type="number" min="0" step="0.01" value="' + number(item.cantidad) + '"></td>' +
+          '<td><input data-budget-field="unidad" value="' + escapeHtml(item.unidad) + '"></td>' +
+          '<td><input data-budget-field="precioUnitario" type="number" min="0" step="0.01" value="' + number(item.precioUnitario) + '"></td>' +
           '<td><input data-budget-field="dias" type="number" min="0" value="' + number(item.dias) + '"></td>' +
           '<td class="sheet-total">' + money(budgetItemTotal(item)) + '</td>' +
           '<td><button class="danger-link" type="button" data-delete-budget-item="' + item.id + '">Eliminar</button></td>' +
         '</tr>'
       ).join('');
+      const certificateCount = new Set(presupuesto.items.map(item => item.certificado).filter(Boolean)).size;
       detailContent.innerHTML =
-        '<div class="summary-band"><div class="summary-item"><b>' + money(budgetTotal(presupuesto)) + '</b><span>Total presupuesto</span></div><div class="summary-item"><b>' + money(labor) + '</b><span>Mano de obra</span></div><div class="summary-item"><b>' + money(materials) + '</b><span>Materiales</span></div><div class="summary-item"><b>' + money(direction) + '</b><span>Direccion tecnica</span></div></div>' +
-        '<section class="panel" style="margin-top:16px"><div class="section-head"><div><h3>Planilla editable</h3><p>Puede repetir el número de certificación en varios trabajos.</p></div><div class="actions"><select class="status-select" data-budget-status-edit><option' + (presupuesto.estado === 'Pendiente' ? ' selected' : '') + '>Pendiente</option><option' + (presupuesto.estado === 'Aprobado' ? ' selected' : '') + '>Aprobado</option><option' + (presupuesto.estado === 'Rechazado' ? ' selected' : '') + '>Rechazado</option></select><button class="btn primary small" type="button" data-add-budget-item>Agregar fila</button><button class="btn ghost small" type="button" data-print-budget>Imprimir</button></div></div><div class="sheet-wrap"><table class="sheet"><thead><tr><th>CERT.</th><th>TRABAJO</th><th>MANO DE OBRA</th><th>MATERIALES</th><th>$ MANO OBRA</th><th>$ MATERIALES</th><th>$ DIRECCION</th><th>DIAS</th><th>TOTAL</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>';
+        '<div class="summary-band"><div class="summary-item"><b data-budget-summary="total">' + money(budgetTotal(presupuesto)) + '</b><span>Total presupuesto</span></div><div class="summary-item"><b data-budget-summary="labor">' + money(labor) + '</b><span>Mano de obra</span></div><div class="summary-item"><b data-budget-summary="materials">' + money(materials) + '</b><span>Materiales</span></div><div class="summary-item"><b data-budget-summary="certificates">' + certificateCount + '</b><span>Certificaciones</span></div></div>' +
+        '<section class="panel" style="margin-top:16px"><div class="section-head"><div><h3>Planilla de subitems</h3><p>Repita el número de certificación para cargar cemento, arena, cal u otros ítems por separado.</p></div><div class="actions"><select class="status-select" data-budget-status-edit><option' + (presupuesto.estado === 'Pendiente' ? ' selected' : '') + '>Pendiente</option><option' + (presupuesto.estado === 'Aprobado' ? ' selected' : '') + '>Aprobado</option><option' + (presupuesto.estado === 'Rechazado' ? ' selected' : '') + '>Rechazado</option></select><button class="btn primary small" type="button" data-add-budget-item>Agregar subitem</button><button class="btn ghost small" type="button" data-print-budget>Imprimir</button></div></div><div class="sheet-wrap"><table class="sheet"><thead><tr><th>CERT.</th><th>TIPO</th><th>ITEM / SUBITEM</th><th>CANT.</th><th>UNIDAD</th><th>PRECIO UNIT.</th><th>DIAS</th><th>TOTAL</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>';
       projectDetail.classList.add('open');
       projectDetail.setAttribute('aria-hidden', 'false');
     }
@@ -691,24 +867,31 @@ const html = String.raw`<!doctype html>
           '<section class="panel" style="margin-top:16px"><div class="section-head"><div><h3>Categorias del estudio</h3><p>Catálogo editable para futuras ampliaciones.</p></div></div><div class="panel-body split-panels"><div class="catalog-list">' + categories + '</div><form class="form" data-form="catalog"><input type="hidden" name="scope" value="estudio"><label>Categoria<input name="categoria" required></label><label>Nueva subcategoria<input name="subcategoria" required></label><button class="btn secondary" type="submit">Agregar al catalogo</button></form></div></section>';
     }
     function renderTeam() {
-      const rows = state.equipo.length ? state.equipo.map(persona =>
-        '<tr><td><b>' + escapeHtml(persona.nombre) + '</b><div class="project-meta">' + (persona.activo ? 'Activa' : 'Inactiva') + '</div></td><td>' + escapeHtml(persona.rol) + '</td><td><div class="tags">' + persona.asignaciones.map(item => '<span class="tag">' + escapeHtml(obraName(item.obraId)) + '</span>').join('') + '</div></td><td><div class="task-list">' + persona.asignaciones.map(item => '<div class="task"><b>' + escapeHtml(obraName(item.obraId)) + ':</b> ' + escapeHtml(item.tarea || 'Sin tarea cargada') + '</div>').join('') + '</div></td><td><div class="actions"><button class="btn secondary small" type="button" data-edit-person="' + escapeHtml(persona.id) + '">Editar</button><button class="btn warn small" type="button" data-delete-person="' + escapeHtml(persona.id) + '">Eliminar</button></div></td></tr>'
-      ).join('') : '<tr><td colspan="4" class="empty">No hay integrantes cargados.</td></tr>';
+      const workIds = new Set(visibleObras().map(item => item.id));
+      const people = isOwner() ? state.equipo : state.equipo.filter(persona => persona.asignaciones.some(item => workIds.has(item.obraId)));
+      const rows = people.length ? people.map(persona => {
+        const assignments = isOwner() ? persona.asignaciones : persona.asignaciones.filter(item => workIds.has(item.obraId));
+        return '<tr><td><b>' + escapeHtml(persona.nombre) + '</b><div class="project-meta">' + (persona.activo ? 'Activa' : 'Inactiva') + '</div></td><td>' + escapeHtml(persona.rol) + '</td><td><div class="tags">' + assignments.map(item => '<span class="tag">' + escapeHtml(obraName(item.obraId)) + '</span>').join('') + '</div></td><td><div class="task-list">' + assignments.map(item => '<div class="task"><b>' + escapeHtml(obraName(item.obraId)) + ':</b> ' + escapeHtml(item.tarea || 'Sin tarea cargada') + '</div>').join('') + '</div></td><td>' + (isOwner() ? '<div class="actions"><button class="btn secondary small" type="button" data-edit-person="' + escapeHtml(persona.id) + '">Editar</button><button class="btn warn small" type="button" data-delete-person="' + escapeHtml(persona.id) + '">Eliminar</button></div>' : '<span class="project-meta">Solo lectura</span>') + '</td></tr>';
+      }).join('') : '<tr><td colspan="5" class="empty">No hay integrantes asignados a las obras habilitadas.</td></tr>';
       const assignments = state.obras.map(obra => '<label class="check-row"><input type="checkbox" name="obraIds" value="' + escapeHtml(obra.id) + '"><span>' + escapeHtml(obra.nombre) + '</span></label>').join('');
       viewContent.innerHTML =
-        '<div class="view-grid"><section class="panel"><div class="toolbar"><label>Estado<select data-filter="team-status"><option value="">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label><label>Buscar<input data-filter="team-search" placeholder="Persona, rol u obra"></label></div><div class="table-wrap"><table><thead><tr><th>PERSONA</th><th>ROL</th><th>OBRAS ASIGNADAS</th><th>TAREAS ACTUALES</th><th></th></tr></thead><tbody id="teamRows">' + rows + '</tbody></table></div></section>' +
+        '<div class="' + (isOwner() ? 'view-grid' : '') + '"><section class="panel">' + (!isOwner() ? '<div class="permission-note">Vista de solo lectura. Se muestra únicamente el personal asignado a tus proyectos habilitados.</div>' : '') + '<div class="toolbar"><label>Estado<select data-filter="team-status"><option value="">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label><label>Buscar<input data-filter="team-search" placeholder="Persona, rol u obra"></label></div><div class="table-wrap"><table><thead><tr><th>PERSONA</th><th>ROL</th><th>OBRAS ASIGNADAS</th><th>TAREAS ACTUALES</th><th></th></tr></thead><tbody id="teamRows">' + rows + '</tbody></table></div></section>' +
+        (isOwner() ?
         '<form class="form" data-form="person"><h3>Agregar integrante</h3>' +
           '<label>Nombre<input name="nombre" required></label>' +
           '<label>Rol<input name="rol" placeholder="Arquitecta, supervisor..." required></label>' +
           '<label class="toggle-row"><span>Persona activa</span><input type="checkbox" name="activo" checked></label>' +
           '<fieldset><legend>Obras</legend><div class="checkbox-grid">' + (assignments || '<span class="helper">Primero crea una obra.</span>') + '</div></fieldset>' +
           '<div class="helper">Marca todas las obras en las que participa.</div>' +
-          '<button class="btn primary" type="submit">Guardar integrante</button></form></div>';
+          '<button class="btn primary" type="submit">Guardar integrante</button></form>' : '') + '</div>';
     }
     function renderPersonDetail(id) {
+      if (!isOwner()) return;
       const persona = state.equipo.find(item => item.id === id);
       if (!persona) return;
       selectedProjectId = null;
+      delete projectDetail.dataset.budgetId;
+      delete projectDetail.dataset.userId;
       projectDetail.dataset.personId = id;
       detailTitle.textContent = persona.nombre;
       detailSubtitle.textContent = persona.rol + ' · ' + (persona.activo ? 'Activa' : 'Inactiva');
@@ -718,6 +901,32 @@ const html = String.raw`<!doctype html>
       }).join('');
       detailContent.innerHTML =
         '<div class="view-grid"><section class="panel"><div class="section-head"><div><h3>Asignaciones y tareas</h3><p>Cada tarea queda vinculada a una obra específica.</p></div></div><div class="panel-body catalog-list">' + assignmentRows + '</div></section><form class="form" data-form="edit-person"><input type="hidden" name="id" value="' + id + '"><h3>Datos de la persona</h3><label>Nombre<input name="nombre" value="' + escapeHtml(persona.nombre) + '" required></label><label>Rol<input name="rol" value="' + escapeHtml(persona.rol) + '" required></label><label class="toggle-row"><span>Persona activa</span><input name="activo" type="checkbox"' + (persona.activo ? ' checked' : '') + '></label><button class="btn primary" type="submit">Guardar cambios</button></form></div>';
+      projectDetail.classList.add('open');
+      projectDetail.setAttribute('aria-hidden', 'false');
+    }
+    function renderUsers() {
+      if (!isOwner()) return renderObras();
+      const rows = state.usuarios.map(usuario =>
+        '<tr><td><b>' + escapeHtml(usuario.nombre) + '</b><div class="project-meta">' + escapeHtml(usuario.email) + '</div></td><td><span class="role-badge">' + escapeHtml(usuario.tipo) + '</span></td><td>' + (usuario.activo ? '<span class="pill">Activo</span>' : '<span class="pill">Inactivo</span>') + '</td><td><div class="tags">' + (usuario.tipo === 'Propietario' ? '<span class="tag">Todas las obras</span>' : usuario.obraIds.map(id => '<span class="tag">' + escapeHtml(obraName(id)) + '</span>').join('')) + '</div></td><td><div class="actions"><button class="btn secondary small" type="button" data-edit-user="' + usuario.id + '">Configurar</button><button class="btn warn small" type="button" data-delete-user="' + usuario.id + '"' + (usuario.id === currentUser()?.id ? ' disabled' : '') + '>Eliminar</button></div></td></tr>'
+      ).join('');
+      const assignments = state.obras.map(obra => '<label class="check-row"><input type="checkbox" name="obraIds" value="' + escapeHtml(obra.id) + '"><span>' + escapeHtml(obra.nombre) + '</span></label>').join('');
+      viewContent.innerHTML =
+        '<div class="view-grid"><section class="panel"><div class="permission-note">Usuarios y permisos son independientes del módulo Equipo.</div><div class="table-wrap"><table><thead><tr><th>USUARIO</th><th>TIPO</th><th>ESTADO</th><th>OBRAS HABILITADAS</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section>' +
+        '<form class="form" data-form="user"><h3>Nuevo usuario</h3><label>Nombre<input name="nombre" required></label><label>Email<input name="email" type="email" required></label><label>Contrasena<input name="password" type="password" minlength="4" required></label><label>Tipo de usuario<select name="tipo" data-user-type><option>Supervisor</option><option>Propietario</option></select></label><label class="toggle-row"><span>Usuario activo</span><input name="activo" type="checkbox" checked></label><fieldset data-user-projects><legend>Obras habilitadas</legend><div class="checkbox-grid">' + (assignments || '<span class="helper">No hay obras creadas.</span>') + '</div></fieldset><div class="helper">Los propietarios acceden a todo. Los supervisores solo a las obras seleccionadas.</div><button class="btn primary" type="submit">Crear usuario</button></form></div>';
+    }
+    function renderUserDetail(id) {
+      if (!isOwner()) return;
+      const usuario = state.usuarios.find(item => item.id === id);
+      if (!usuario) return;
+      selectedProjectId = null;
+      delete projectDetail.dataset.budgetId;
+      delete projectDetail.dataset.personId;
+      projectDetail.dataset.userId = id;
+      detailTitle.textContent = usuario.nombre;
+      detailSubtitle.textContent = usuario.email + ' · ' + usuario.tipo;
+      const assignments = state.obras.map(obra => '<label class="check-row"><input type="checkbox" name="obraIds" value="' + escapeHtml(obra.id) + '"' + (usuario.obraIds.includes(obra.id) ? ' checked' : '') + '><span>' + escapeHtml(obra.nombre) + '</span></label>').join('');
+      detailContent.innerHTML =
+        '<form class="form" data-form="edit-user"><input type="hidden" name="id" value="' + usuario.id + '"><h3>Configuracion de acceso</h3><label>Nombre<input name="nombre" value="' + escapeHtml(usuario.nombre) + '" required></label><label>Email<input name="email" type="email" value="' + escapeHtml(usuario.email) + '" required></label><label>Nueva contrasena<input name="password" type="password" minlength="4"><span class="helper">Dejar en blanco para conservar la actual.</span></label><label>Tipo de usuario<select name="tipo" data-user-type><option' + (usuario.tipo === 'Supervisor' ? ' selected' : '') + '>Supervisor</option><option' + (usuario.tipo === 'Propietario' ? ' selected' : '') + '>Propietario</option></select></label><label class="toggle-row"><span>Usuario activo</span><input name="activo" type="checkbox"' + (usuario.activo ? ' checked' : '') + '></label><fieldset data-user-projects class="' + (usuario.tipo === 'Propietario' ? 'hidden' : '') + '"><legend>Obras habilitadas</legend><div class="checkbox-grid">' + assignments + '</div></fieldset><button class="btn primary" type="submit">Guardar configuracion</button></form>';
       projectDetail.classList.add('open');
       projectDetail.setAttribute('aria-hidden', 'false');
     }
@@ -731,18 +940,21 @@ const html = String.raw`<!doctype html>
       if (current === 'presupuestos') renderBudgets();
       if (current === 'finanzas') renderFinances();
       if (current === 'equipo') renderTeam();
+      if (current === 'usuarios') renderUsers();
     }
     function renderProjectDetail(id) {
       const obra = obraById(id);
-      if (!obra) return;
+      if (!obra || !canAccessObra(id)) return;
+      const owner = isOwner();
       selectedProjectId = id;
       delete projectDetail.dataset.budgetId;
       delete projectDetail.dataset.personId;
+      delete projectDetail.dataset.userId;
       const certificates = state.certificaciones.filter(item => item.obraId === id);
       const expenses = state.gastosObra.filter(item => item.obraId === id);
-      const certifiedAmount = certificates.reduce((sum, item) => sum + number(item.monto), 0);
+      const certifiedAmount = certificates.reduce((sum, item) => sum + certificateTotal(item), 0);
       const certifiedPct = number(obra.presupuesto) ? Math.round(certifiedAmount / number(obra.presupuesto) * 100) : 0;
-      const collectedAmount = certificates.filter(item => item.estado === 'Cobrada').reduce((sum, item) => sum + number(item.monto), 0);
+      const collectedAmount = certificates.filter(item => item.estado === 'Cobrada').reduce((sum, item) => sum + certificateTotal(item), 0);
       const expenseAmount = expenses.reduce((sum, item) => sum + number(item.monto), 0);
       const paidAmount = expenses.filter(item => item.estado === 'Pagado').reduce((sum, item) => sum + number(item.monto), 0);
       const pendingAmount = expenseAmount - paidAmount;
@@ -755,14 +967,20 @@ const html = String.raw`<!doctype html>
       const plannedCertificates = [...new Set(budgetItems.map(item => item.certificado).filter(Boolean))];
       detailTitle.textContent = obra.nombre;
       detailSubtitle.textContent = obra.cliente + ' · ' + obra.estado;
-      const certRows = certificates.length ? certificates.map(item =>
-        '<div class="ledger-row" data-cert-row="' + item.id + '"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.periodo) + (item.presupuestoCertificado ? ' · Cert. presupuestada ' + escapeHtml(item.presupuestoCertificado) : '') + '</div></div><div><b>' + money(item.monto) + '</b><br><select class="status-select" data-certificate-status="' + item.id + '"><option' + (item.estado === 'Presentada' ? ' selected' : '') + '>Presentada</option><option' + (item.estado === 'Aprobada' ? ' selected' : '') + '>Aprobada</option><option' + (item.estado === 'Cobrada' ? ' selected' : '') + '>Cobrada</option></select><br><button class="danger-link" type="button" data-delete-certificate="' + escapeHtml(item.id) + '">Eliminar</button></div></div>'
-      ).join('') : '<div class="empty">Sin certificaciones cargadas.</div>';
+      const certRows = certificates.length ? certificates.map(item => {
+        const subitems = item.subitems.map(subitem =>
+          '<div class="subitem"><div><b>' + escapeHtml(subitem.descripcion) + '</b><span>' + escapeHtml(subitem.tipo) + ' · ' + number(subitem.cantidad) + ' ' + escapeHtml(subitem.unidad) + ' × ' + money(subitem.precioUnitario) + '</span></div><b>' + money(number(subitem.cantidad) * number(subitem.precioUnitario)) + '</b></div>'
+        ).join('');
+        const statusControl = owner
+          ? '<select class="status-select" data-certificate-status="' + item.id + '"><option' + (item.estado === 'Pendiente de aprobacion' ? ' selected' : '') + '>Pendiente de aprobacion</option><option' + (item.estado === 'Aprobada' ? ' selected' : '') + '>Aprobada</option><option' + (item.estado === 'Cobrada' ? ' selected' : '') + '>Cobrada</option></select>'
+          : '<span class="pill">' + escapeHtml(item.estado) + '</span>';
+        return '<div class="ledger-row" data-cert-row="' + item.id + '"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.periodo) + (item.presupuestoCertificado ? ' · Cert. presupuestada ' + escapeHtml(item.presupuestoCertificado) : '') + ' · ' + item.subitems.length + ' subitems</div><div class="subitem-list">' + subitems + '</div></div><div><b>' + money(certificateTotal(item)) + '</b><br>' + statusControl + (owner ? '<br><button class="danger-link" type="button" data-delete-certificate="' + escapeHtml(item.id) + '">Eliminar</button>' : '') + '</div></div>';
+      }).join('') : '<div class="empty">Sin certificaciones cargadas.</div>';
       const expenseRows = expenses.length ? expenses.slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha))).map(item =>
-        '<div class="ledger-row" data-expense-row="' + item.id + '"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.fecha || '-') + ' · ' + escapeHtml(item.categoria) + ' / ' + escapeHtml(item.subcategoria) + ' · ' + (item.presupuestado ? 'Presupuestado' : 'No presupuestado') + '</div></div><div><b class="money-out">' + money(item.monto) + '</b><br><select class="status-select" data-expense-status="' + item.id + '"><option' + (item.estado === 'Pendiente de pago' ? ' selected' : '') + '>Pendiente de pago</option><option' + (item.estado === 'Pagado' ? ' selected' : '') + '>Pagado</option></select><br><button class="danger-link" type="button" data-delete-expense="' + escapeHtml(item.id) + '">Eliminar</button></div></div>'
+        '<div class="ledger-row" data-expense-row="' + item.id + '"><div><div class="ledger-title">' + escapeHtml(item.concepto) + '</div><div class="ledger-meta">' + escapeHtml(item.fecha || '-') + ' · ' + escapeHtml(item.categoria) + ' / ' + escapeHtml(item.subcategoria) + (owner ? ' · ' + (item.presupuestado ? 'Presupuestado' : 'No presupuestado') : '') + '</div></div><div><b class="money-out">' + money(item.monto) + '</b><br><select class="status-select" data-expense-status="' + item.id + '"><option' + (item.estado === 'Pendiente de pago' ? ' selected' : '') + '>Pendiente de pago</option><option' + (item.estado === 'Pagado' ? ' selected' : '') + '>Pagado</option></select>' + (owner ? '<br><button class="danger-link" type="button" data-delete-expense="' + escapeHtml(item.id) + '">Eliminar</button>' : '') + '</div></div>'
       ).join('') : '<div class="empty">Sin gastos cargados.</div>';
       const plannedOptions = plannedCertificates.map(value => '<option value="' + escapeHtml(value) + '">Certificacion ' + escapeHtml(value) + '</option>').join('');
-      const budgetItemOptions = budgetItems.map(item => '<option value="' + item.id + '">' + escapeHtml('Cert. ' + item.certificado + ' · ' + item.trabajo) + '</option>').join('');
+      const budgetItemOptions = budgetItems.map(item => '<option value="' + item.id + '">' + escapeHtml('Cert. ' + item.certificado + ' · ' + item.descripcion) + '</option>').join('');
       const spendAlert = spendGap > number(obra.presupuesto) * .08
         ? '<div class="alert danger">El gasto acumulado supera la curva esperada por ' + money(spendGap) + '.</div>'
         : '<div class="alert ok">El gasto está dentro de la curva esperada para el nivel certificado.</div>';
@@ -773,22 +991,40 @@ const html = String.raw`<!doctype html>
       });
       const categoryBreakdown = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]).map(([label, amount]) => '<div class="catalog-item"><b>' + escapeHtml(label) + '</b><span>' + money(amount) + '</span></div>').join('') || '<div class="empty">Sin gastos para analizar.</div>';
       const categories = Object.entries(state.catalogos.obra).map(([category, values]) => '<div class="catalog-item"><b>' + escapeHtml(category) + '</b><span class="project-meta">' + escapeHtml(values.join(' · ')) + '</span></div>').join('');
+      const metrics = owner
+        ? [
+            ['Porcentaje certificado', certifiedPct + '%'], ['Monto cotizado', money(obra.presupuesto)],
+            ['Monto certificado', money(certifiedAmount)], ['Monto cobrado', money(collectedAmount)], ['Monto gastado', money(expenseAmount)],
+            ['Pendiente de pago', money(pendingAmount)], ['Desvio total', money(deviation), deviation > 0 ? 'money-out' : 'money-in']
+          ]
+        : [
+            ['Avance certificado', certifiedPct + '%'], ['Certificaciones', certificates.length],
+            ['Pendientes de aprobacion', certificates.filter(item => item.estado === 'Pendiente de aprobacion').length],
+            ['Monto certificado', money(certifiedAmount)], ['Monto gastado', money(expenseAmount)], ['Pendiente de pago', money(pendingAmount)]
+          ];
+      const economicOverview = owner
+        ? '<div class="split-panels"><section class="panel"><div class="section-head"><div><h3>Certificación y gasto</h3><p>Comparación económica sobre el monto cotizado.</p></div></div><div class="panel-body comparison"><div class="comparison-row"><b>Certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div><strong>' + certifiedPct + '%</strong></div><div class="comparison-row"><b>Gastado</b><div class="bar"><i style="width:' + Math.min(100, number(obra.presupuesto) ? expenseAmount / number(obra.presupuesto) * 100 : 0) + '%"></i></div><strong>' + (number(obra.presupuesto) ? Math.round(expenseAmount / number(obra.presupuesto) * 100) : 0) + '%</strong></div>' + spendAlert + '</div></section><section class="panel"><div class="section-head"><div><h3>Control económico</h3><p>Presupuestado, real y no previsto.</p></div></div><div class="panel-body catalog-list"><div class="catalog-item"><b>Total pagado</b>' + money(paidAmount) + '</div><div class="catalog-item"><b>Total pendiente</b>' + money(pendingAmount) + '</div><div class="catalog-item"><b>Gastos no presupuestados</b><span class="' + (unbudgeted ? 'money-out' : 'money-in') + '">' + money(unbudgeted) + '</span></div><div class="catalog-item"><b>Disponible contra cotizado</b>' + money(number(obra.presupuesto) - expenseAmount) + '</div></div></section></div>'
+        : '<div class="split-panels"><section class="panel"><div class="section-head"><div><h3>Avance de certificación</h3><p>Seguimiento visible sin exponer el presupuesto total.</p></div></div><div class="panel-body comparison"><div class="comparison-row"><b>Certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div><strong>' + certifiedPct + '%</strong></div><div class="permission-note">El presupuesto y los montos totales cotizados están restringidos al propietario.</div></div></section><section class="panel"><div class="section-head"><div><h3>Gastos registrados</h3><p>Control de pagos de la obra habilitada.</p></div></div><div class="panel-body catalog-list"><div class="catalog-item"><b>Total pagado</b>' + money(paidAmount) + '</div><div class="catalog-item"><b>Total pendiente</b>' + money(pendingAmount) + '</div></div></section></div>';
+      const certificateForm =
+        '<form class="inline-form" data-form="certificate"><label>Periodo<input name="periodo" type="month" required></label>' +
+          (owner ? '<label>Certificacion presupuestada<select name="presupuestoCertificado"><option value="">Sin vincular</option>' + plannedOptions + '</select></label>' : '<input name="presupuestoCertificado" type="hidden" value="">') +
+          '<label class="full">Concepto<input name="concepto" required></label>' +
+          (owner ? '<label>Origen de subitems<select name="montoModo"><option value="manual">Carga manual</option><option value="presupuesto">Importar del presupuesto</option></select></label>' : '<input name="montoModo" type="hidden" value="manual">') +
+          '<div class="full"><div class="section-head" style="padding:0 0 10px;border:0"><div><h3>Subitems de la certificacion</h3><p>Agrega cada material o trabajo por separado.</p></div><button class="btn secondary small" type="button" data-add-certificate-subitem>Agregar subitem</button></div><div class="catalog-list" data-certificate-subitems>' + certificateSubitemEditor() + '</div><div class="helper" data-certificate-total>Total de la certificacion: ' + money(0) + '</div></div>' +
+          (owner ? '<label>Estado<select name="estado"><option>Pendiente de aprobacion</option><option>Aprobada</option><option>Cobrada</option></select></label>' : '<input name="estado" type="hidden" value="Pendiente de aprobacion"><div class="permission-note">Los certificados cargados por supervisores quedan pendientes de aprobación.</div>') +
+          '<button class="btn primary" type="submit">Agregar certificacion</button></form>';
+      const expenseBudgetFields = owner
+        ? '<label class="toggle-row"><span>Corresponde al presupuesto</span><input name="presupuestado" type="checkbox" data-budgeted-toggle></label><label class="full hidden" data-budget-item-field>Item presupuestado<select name="presupuestoItemId"><option value="">Seleccionar item</option>' + budgetItemOptions + '</select></label>'
+        : '<input name="presupuestado" type="hidden" value=""><input name="presupuestoItemId" type="hidden" value="">';
       detailContent.innerHTML =
-        '<div class="module-stats">' + metricCards([
-          ['Porcentaje certificado', certifiedPct + '%'], ['Monto cotizado', money(obra.presupuesto)],
-          ['Monto certificado', money(certifiedAmount)], ['Monto cobrado', money(collectedAmount)], ['Monto gastado', money(expenseAmount)],
-          ['Pendiente de pago', money(pendingAmount)], ['Desvio total', money(deviation), deviation > 0 ? 'money-out' : 'money-in']
-        ]) + '</div>' +
-        '<div class="split-panels"><section class="panel"><div class="section-head"><div><h3>Certificación y gasto</h3><p>Comparación económica sobre el monto cotizado.</p></div></div><div class="panel-body comparison"><div class="comparison-row"><b>Certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div><strong>' + certifiedPct + '%</strong></div><div class="comparison-row"><b>Gastado</b><div class="bar"><i style="width:' + Math.min(100, number(obra.presupuesto) ? expenseAmount / number(obra.presupuesto) * 100 : 0) + '%"></i></div><strong>' + (number(obra.presupuesto) ? Math.round(expenseAmount / number(obra.presupuesto) * 100) : 0) + '%</strong></div>' + spendAlert + '</div></section>' +
-        '<section class="panel"><div class="section-head"><div><h3>Control económico</h3><p>Presupuestado, real y no previsto.</p></div></div><div class="panel-body catalog-list"><div class="catalog-item"><b>Total pagado</b>' + money(paidAmount) + '</div><div class="catalog-item"><b>Total pendiente</b>' + money(pendingAmount) + '</div><div class="catalog-item"><b>Gastos no presupuestados</b><span class="' + (unbudgeted ? 'money-out' : 'money-in') + '">' + money(unbudgeted) + '</span></div><div class="catalog-item"><b>Disponible contra cotizado</b>' + money(number(obra.presupuesto) - expenseAmount) + '</div></div></section></div>' +
+        '<div class="module-stats">' + metricCards(metrics) + '</div>' + economicOverview +
         '<div class="detail-grid">' +
-          '<section class="panel"><div class="section-head"><div><h3>Certificaciones</h3><p>Estados: presentada, aprobada o cobrada.</p></div></div><div class="ledger">' + certRows + '</div>' +
-            '<form class="inline-form" data-form="certificate"><label>Periodo<input name="periodo" type="month" required></label><label>Certificacion presupuestada<select name="presupuestoCertificado"><option value="">Sin vincular</option>' + plannedOptions + '</select></label><label class="full">Concepto<input name="concepto" required></label><label>Modo de monto<select name="montoModo"><option value="manual">Monto manual</option><option value="presupuesto">Usar monto presupuestado</option></select></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Presentada</option><option>Aprobada</option><option>Cobrada</option></select></label><button class="btn primary" type="submit">Agregar certificacion</button></form>' +
+          '<section class="panel"><div class="section-head"><div><h3>Certificaciones</h3><p>Cada certificación puede contener múltiples subitems.</p></div></div><div class="ledger">' + certRows + '</div>' + certificateForm +
           '</section>' +
           '<section class="panel"><div class="toolbar"><label>Estado<select data-filter="expense-status"><option value="">Todos</option><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Categoria<select data-filter="expense-category"><option value="">Todas</option>' + categoryOptions('obra') + '</select></label></div><div class="section-head"><div><h3>Gastos de la obra</h3><p>Incluye materiales reales, mano de obra y gastos no presupuestados.</p></div></div><div class="ledger" id="expenseRows">' + expenseRows + '</div>' +
-            '<form class="inline-form" data-form="project-expense"><label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label><label>Categoria<select name="categoria" data-category-scope="obra">' + categoryOptions('obra') + '</select></label><label>Subcategoria<select name="subcategoria" data-subcategory-scope="obra">' + subcategoryOptions('obra', Object.keys(state.catalogos.obra)[0]) + '</select></label><label class="full">Descripcion<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Medio de pago<input name="medioPago"></label><label class="toggle-row"><span>Corresponde al presupuesto</span><input name="presupuestado" type="checkbox" data-budgeted-toggle></label><label class="full hidden" data-budget-item-field>Item presupuestado<select name="presupuestoItemId"><option value="">Seleccionar item</option>' + budgetItemOptions + '</select></label><label class="full">Observaciones<textarea name="observaciones"></textarea></label><button class="btn primary" type="submit">Agregar gasto</button></form>' +
+            '<form class="inline-form" data-form="project-expense"><label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label><label>Categoria<select name="categoria" data-category-scope="obra">' + categoryOptions('obra') + '</select></label><label>Subcategoria<select name="subcategoria" data-subcategory-scope="obra">' + subcategoryOptions('obra', Object.keys(state.catalogos.obra)[0]) + '</select></label><label class="full">Descripcion<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Medio de pago<input name="medioPago"></label>' + expenseBudgetFields + '<label class="full">Observaciones<textarea name="observaciones"></textarea></label><button class="btn primary" type="submit">Agregar gasto</button></form>' +
           '</section></div>' +
-        '<div class="split-panels" style="margin-top:16px"><section class="panel"><div class="section-head"><div><h3>Desvio por categoria</h3><p>Distribución real por categoría y subcategoría.</p></div></div><div class="panel-body catalog-list">' + categoryBreakdown + '</div></section><section class="panel"><div class="section-head"><div><h3>Categorias de gastos de obra</h3><p>Catálogo editable sin modificar código.</p></div></div><div class="panel-body"><div class="catalog-list">' + categories + '</div><form class="form" data-form="catalog" style="margin-top:14px"><input type="hidden" name="scope" value="obra"><label>Categoria<input name="categoria" required></label><label>Nueva subcategoria<input name="subcategoria" required></label><button class="btn secondary" type="submit">Agregar al catalogo</button></form></div></section></div>';
+        '<div class="' + (owner ? 'split-panels' : '') + '" style="margin-top:16px"><section class="panel"><div class="section-head"><div><h3>Gasto por categoria</h3><p>Distribución real por categoría y subcategoría.</p></div></div><div class="panel-body catalog-list">' + categoryBreakdown + '</div></section>' + (owner ? '<section class="panel"><div class="section-head"><div><h3>Categorias de gastos de obra</h3><p>Catálogo editable sin modificar código.</p></div></div><div class="panel-body"><div class="catalog-list">' + categories + '</div><form class="form" data-form="catalog" style="margin-top:14px"><input type="hidden" name="scope" value="obra"><label>Categoria<input name="categoria" required></label><label>Nueva subcategoria<input name="subcategoria" required></label><button class="btn secondary" type="submit">Agregar al catalogo</button></form></div></section>' : '') + '</div>';
       projectDetail.classList.add('open');
       projectDetail.setAttribute('aria-hidden', 'false');
     }
@@ -803,24 +1039,29 @@ const html = String.raw`<!doctype html>
     authModal.addEventListener('click', event => { if (event.target === authModal) authModal.style.display = 'none'; });
     authForm.addEventListener('submit', event => {
       event.preventDefault();
-      const validEmail = email.value.trim().toLowerCase() === 'test@test';
-      const validPassword = password.value === 'GB2026';
-      authError.classList.toggle('hidden', validEmail && validPassword);
-      if (!validEmail || !validPassword) return;
-      localStorage.setItem('gb-construction-user', 'test@test');
+      const loginEmail = email.value.trim().toLowerCase();
+      const usuario = state.usuarios.find(item => item.email === loginEmail && item.password === password.value && item.activo);
+      authError.classList.toggle('hidden', Boolean(usuario));
+      if (!usuario) return;
+      localStorage.setItem('gb-construction-user', usuario.email);
       password.value = '';
       authModal.style.display = 'none';
       notify('Sesion iniciada');
       openApp();
     });
-    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => { current = tab.dataset.view; render(); }));
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
+      if (tab.disabled) return;
+      current = tab.dataset.view;
+      render();
+    }));
     viewContent.addEventListener('submit', event => {
       event.preventDefault();
       const form = event.target;
       const formType = form.dataset.form;
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      data.id = crypto.randomUUID();
+      data.id = data.id || crypto.randomUUID();
+      if (!isOwner() && ['obra', 'budget', 'finance', 'person', 'catalog', 'user'].includes(formType)) return;
       if (formType === 'obra') {
         const presupuesto = budgetById(data.presupuestoId);
         let certificacionesPlanificadas = [];
@@ -840,6 +1081,22 @@ const html = String.raw`<!doctype html>
       if (formType === 'budget') state.presupuestos.push({ id: data.id, nombre: data.nombre, cliente: data.cliente, estado: data.estado, obraId: '', items: [] });
       if (formType === 'finance') state.finanzasEstudio.push(data);
       if (formType === 'person') state.equipo.push({ id: data.id, nombre: data.nombre, rol: data.rol, activo: Boolean(formData.get('activo')), asignaciones: formData.getAll('obraIds').map(obraId => ({ obraId, tarea: '' })) });
+      if (formType === 'user') {
+        const normalizedEmail = String(data.email).trim().toLowerCase();
+        if (state.usuarios.some(usuario => usuario.email === normalizedEmail)) {
+          notify('Ya existe un usuario con ese email');
+          return;
+        }
+        state.usuarios.push({
+          id: data.id,
+          nombre: data.nombre,
+          email: normalizedEmail,
+          password: data.password,
+          tipo: data.tipo,
+          activo: Boolean(formData.get('activo')),
+          obraIds: data.tipo === 'Supervisor' ? formData.getAll('obraIds') : []
+        });
+      }
       if (formType === 'catalog') {
         const scope = data.scope;
         state.catalogos[scope][data.categoria] = state.catalogos[scope][data.categoria] || [];
@@ -857,8 +1114,11 @@ const html = String.raw`<!doctype html>
       if (budgetId) return renderBudgetDetail(budgetId);
       const personId = target.dataset.editPerson;
       if (personId) return renderPersonDetail(personId);
+      const userId = target.dataset.editUser;
+      if (userId) return renderUserDetail(userId);
       const duplicateBudget = target.dataset.duplicateBudget;
       if (duplicateBudget) {
+        if (!isOwner()) return;
         const original = budgetById(duplicateBudget);
         state.presupuestos.push({ ...structuredClone(original), id: crypto.randomUUID(), nombre: original.nombre + ' (copia)', estado: 'Pendiente', obraId: '', items: original.items.map(item => ({ ...item, id: crypto.randomUUID() })) });
         save();
@@ -869,7 +1129,9 @@ const html = String.raw`<!doctype html>
       const deleteBudget = target.dataset.deleteBudget;
       const deleteFinance = target.dataset.deleteFinance;
       const deletePerson = target.dataset.deletePerson;
-      if (!deleteProject && !deleteBudget && !deleteFinance && !deletePerson) return;
+      const deleteUser = target.dataset.deleteUser;
+      if (!deleteProject && !deleteBudget && !deleteFinance && !deletePerson && !deleteUser) return;
+      if (!isOwner()) return;
       if (!confirm('Eliminar este registro?')) return;
       if (deleteProject) {
         state.presupuestos = state.presupuestos.map(item => item.obraId === deleteProject ? { ...item, obraId: '' } : item);
@@ -877,6 +1139,7 @@ const html = String.raw`<!doctype html>
         state.certificaciones = state.certificaciones.filter(item => item.obraId !== deleteProject);
         state.gastosObra = state.gastosObra.filter(item => item.obraId !== deleteProject);
         state.equipo = state.equipo.map(persona => ({ ...persona, asignaciones: persona.asignaciones.filter(item => item.obraId !== deleteProject) }));
+        state.usuarios = state.usuarios.map(usuario => ({ ...usuario, obraIds: usuario.obraIds.filter(id => id !== deleteProject) }));
       }
       if (deleteBudget) {
         state.presupuestos = state.presupuestos.filter(item => item.id !== deleteBudget);
@@ -884,6 +1147,15 @@ const html = String.raw`<!doctype html>
       }
       if (deleteFinance) state.finanzasEstudio = state.finanzasEstudio.filter(item => item.id !== deleteFinance);
       if (deletePerson) state.equipo = state.equipo.filter(item => item.id !== deletePerson);
+      if (deleteUser && deleteUser !== currentUser()?.id) {
+        const user = state.usuarios.find(item => item.id === deleteUser);
+        const ownerCount = state.usuarios.filter(item => item.tipo === 'Propietario').length;
+        if (user?.tipo === 'Propietario' && ownerCount <= 1) {
+          notify('Debe existir al menos un propietario');
+          return;
+        }
+        state.usuarios = state.usuarios.filter(item => item.id !== deleteUser);
+      }
       save();
       notify('Registro eliminado');
       render();
@@ -910,6 +1182,10 @@ const html = String.raw`<!doctype html>
         const form = target.closest('form');
         const subcategory = form.querySelector('[data-subcategory-scope="' + scope + '"]');
         if (subcategory) subcategory.innerHTML = subcategoryOptions(scope, target.value);
+      }
+      if (target.matches('[data-user-type]')) {
+        const projects = target.closest('form').querySelector('[data-user-projects]');
+        if (projects) projects.classList.toggle('hidden', target.value === 'Propietario');
       }
       applyViewFilters();
     });
@@ -958,49 +1234,106 @@ const html = String.raw`<!doctype html>
       const form = event.target;
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      data.id = crypto.randomUUID();
+      data.id = data.id || crypto.randomUUID();
       if (form.dataset.form === 'certificate' && selectedProjectId) {
         data.obraId = selectedProjectId;
-        const obra = obraById(selectedProjectId);
-        const presupuesto = budgetById(obra.presupuestoId);
-        if (data.montoModo === 'presupuesto' && data.presupuestoCertificado && presupuesto) {
-          data.monto = presupuesto.items.filter(item => item.certificado === data.presupuestoCertificado).reduce((sum, item) => sum + budgetItemTotal(item), 0);
+        data.estado = isOwner() ? data.estado : 'Pendiente de aprobacion';
+        data.creadoPor = currentUser()?.id || '';
+        data.subitems = [...form.querySelectorAll('[data-certificate-subitem]')].map(row => ({
+          id: crypto.randomUUID(),
+          tipo: row.querySelector('[data-subitem-field="tipo"]').value,
+          descripcion: row.querySelector('[data-subitem-field="descripcion"]').value.trim(),
+          cantidad: number(row.querySelector('[data-subitem-field="cantidad"]').value),
+          unidad: row.querySelector('[data-subitem-field="unidad"]').value.trim(),
+          precioUnitario: number(row.querySelector('[data-subitem-field="precioUnitario"]').value)
+        })).filter(item => item.descripcion);
+        if (!data.subitems.length) {
+          notify('Agrega al menos un subitem');
+          return;
         }
+        data.monto = certificateTotal(data);
         state.certificaciones.push(data);
       }
       if (form.dataset.form === 'project-expense' && selectedProjectId) {
         data.obraId = selectedProjectId;
-        data.presupuestado = Boolean(formData.get('presupuestado'));
+        data.presupuestado = isOwner() && Boolean(formData.get('presupuestado'));
+        data.creadoPor = currentUser()?.id || '';
         state.gastosObra.push(data);
       }
       if (form.dataset.form === 'catalog') {
+        if (!isOwner()) return;
         state.catalogos[data.scope][data.categoria] = state.catalogos[data.scope][data.categoria] || [];
         if (!state.catalogos[data.scope][data.categoria].includes(data.subcategoria)) state.catalogos[data.scope][data.categoria].push(data.subcategoria);
       }
       if (form.dataset.form === 'edit-person') {
+        if (!isOwner()) return;
         const persona = state.equipo.find(item => item.id === data.id);
         persona.nombre = data.nombre;
         persona.rol = data.rol;
         persona.activo = Boolean(formData.get('activo'));
       }
+      if (form.dataset.form === 'edit-user') {
+        if (!isOwner()) return;
+        const usuario = state.usuarios.find(item => item.id === data.id);
+        const editingCurrentUser = usuario.id === currentUser()?.id;
+        const normalizedEmail = String(data.email).trim().toLowerCase();
+        if (state.usuarios.some(item => item.email === normalizedEmail && item.id !== usuario.id)) {
+          notify('Ya existe un usuario con ese email');
+          return;
+        }
+        const remainsOwner = data.tipo === 'Propietario';
+        const otherOwners = state.usuarios.filter(item => item.tipo === 'Propietario' && item.id !== usuario.id).length;
+        if (usuario.tipo === 'Propietario' && !remainsOwner && otherOwners === 0) {
+          notify('Debe existir al menos un propietario');
+          return;
+        }
+        if (editingCurrentUser && !formData.get('activo')) {
+          notify('No puedes desactivar tu propio usuario');
+          return;
+        }
+        usuario.nombre = data.nombre;
+        usuario.email = normalizedEmail;
+        usuario.tipo = data.tipo;
+        usuario.activo = Boolean(formData.get('activo'));
+        usuario.obraIds = data.tipo === 'Supervisor' ? formData.getAll('obraIds') : [];
+        if (data.password) usuario.password = data.password;
+        if (editingCurrentUser) localStorage.setItem('gb-construction-user', usuario.email);
+      }
       save();
       notify('Seguimiento actualizado');
+      configureNavigation();
+      if (projectDetail.dataset.userId && !isOwner()) return closeProjectDetail();
       renderStats();
       if (selectedProjectId) renderProjectDetail(selectedProjectId);
       else if (projectDetail.dataset.personId) renderPersonDetail(projectDetail.dataset.personId);
+      else if (projectDetail.dataset.userId) renderUserDetail(projectDetail.dataset.userId);
     });
     detailContent.addEventListener('click', event => {
       const certificateId = event.target.dataset.deleteCertificate;
       const expenseId = event.target.dataset.deleteExpense;
       const deleteBudgetItem = event.target.dataset.deleteBudgetItem;
+      if (event.target.matches('[data-add-certificate-subitem]')) {
+        const container = event.target.closest('form').querySelector('[data-certificate-subitems]');
+        container.insertAdjacentHTML('beforeend', certificateSubitemEditor());
+        return updateCertificateFormTotal(event.target.closest('form'));
+      }
+      if (event.target.matches('[data-remove-certificate-subitem]')) {
+        const form = event.target.closest('form');
+        const rows = form.querySelectorAll('[data-certificate-subitem]');
+        if (rows.length === 1) return notify('La certificacion debe tener al menos un subitem');
+        event.target.closest('[data-certificate-subitem]').remove();
+        return updateCertificateFormTotal(form);
+      }
       if (event.target.matches('[data-add-budget-item]')) {
+        if (!isOwner()) return;
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
-        presupuesto.items.push({ id: crypto.randomUUID(), certificado: '', trabajo: '', manoObra: '', materiales: '', montoManoObra: 0, montoMateriales: 0, montoDireccion: 0, dias: 0 });
+        presupuesto.items.push({ id: crypto.randomUUID(), certificado: '', tipo: 'Material', descripcion: '', cantidad: 1, unidad: 'unidad', precioUnitario: 0, dias: 0 });
         save();
         return renderBudgetDetail(presupuesto.id);
       }
-      if (event.target.matches('[data-print-budget]')) return window.print();
+      if (event.target.matches('[data-print-budget]') && isOwner()) return window.print();
       if (!certificateId && !expenseId && !deleteBudgetItem) return;
+      if (!isOwner()) return;
       if (!confirm('Eliminar este registro?')) return;
       if (certificateId) state.certificaciones = state.certificaciones.filter(item => item.id !== certificateId);
       if (expenseId) state.gastosObra = state.gastosObra.filter(item => item.id !== expenseId);
@@ -1016,14 +1349,19 @@ const html = String.raw`<!doctype html>
     detailContent.addEventListener('change', async event => {
       const target = event.target;
       if (target.matches('[data-budget-field]')) {
+        if (!isOwner()) return;
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
         const row = target.closest('[data-budget-item]');
         const item = presupuesto.items.find(value => value.id === row.dataset.budgetItem);
         item[target.dataset.budgetField] = target.type === 'number' ? number(target.value) : target.value;
         save();
-        return renderBudgetDetail(presupuesto.id);
+        const totalCell = row.querySelector('.sheet-total');
+        if (totalCell) totalCell.textContent = money(budgetItemTotal(item));
+        updateBudgetDetailSummary(presupuesto);
+        return;
       }
       if (target.matches('[data-budget-status-edit]')) {
+        if (!isOwner()) return;
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
         presupuesto.estado = target.value;
         save();
@@ -1031,6 +1369,7 @@ const html = String.raw`<!doctype html>
         return renderBudgetDetail(presupuesto.id);
       }
       if (target.matches('[data-person-work]')) {
+        if (!isOwner()) return;
         const persona = state.equipo.find(item => item.id === projectDetail.dataset.personId);
         const obraId = target.dataset.personWork;
         if (target.checked && !persona.asignaciones.some(item => item.obraId === obraId)) persona.asignaciones.push({ obraId, tarea: '' });
@@ -1039,12 +1378,14 @@ const html = String.raw`<!doctype html>
         return renderPersonDetail(persona.id);
       }
       if (target.matches('[data-person-task]')) {
+        if (!isOwner()) return;
         const persona = state.equipo.find(item => item.id === projectDetail.dataset.personId);
         const assignment = persona.asignaciones.find(item => item.obraId === target.dataset.personTask);
         if (assignment) assignment.tarea = target.value;
         save();
       }
       if (target.matches('[data-certificate-status]')) {
+        if (!isOwner()) return;
         const item = state.certificaciones.find(value => value.id === target.dataset.certificateStatus);
         const previous = item.estado;
         const next = target.value;
@@ -1076,18 +1417,18 @@ const html = String.raw`<!doctype html>
       if (target.matches('[data-budgeted-toggle]')) {
         target.closest('form').querySelector('[data-budget-item-field]').classList.toggle('hidden', !target.checked);
       }
+      if (target.matches('[data-user-type]')) {
+        const projects = target.closest('form').querySelector('[data-user-projects]');
+        if (projects) projects.classList.toggle('hidden', target.value === 'Propietario');
+      }
       if (target.name === 'presupuestoCertificado' || target.name === 'montoModo') {
-        const form = target.closest('form');
-        if (form.elements.montoModo.value === 'presupuesto' && form.elements.presupuestoCertificado.value) {
-          const obra = obraById(selectedProjectId);
-          const presupuesto = budgetById(obra.presupuestoId);
-          form.elements.monto.value = presupuesto ? presupuesto.items.filter(item => item.certificado === form.elements.presupuestoCertificado.value).reduce((sum, item) => sum + budgetItemTotal(item), 0) : 0;
-        }
+        importBudgetCertificateSubitems(target.closest('form'));
       }
       applyDetailFilters();
     });
     detailContent.addEventListener('input', event => {
       if (event.target.matches('[data-filter]')) applyDetailFilters();
+      if (event.target.matches('[data-subitem-field]')) updateCertificateFormTotal(event.target.closest('form'));
     });
     function applyDetailFilters() {
       const status = detailContent.querySelector('[data-filter="expense-status"]')?.value || '';
@@ -1103,13 +1444,14 @@ const html = String.raw`<!doctype html>
       selectedProjectId = null;
       delete projectDetail.dataset.budgetId;
       delete projectDetail.dataset.personId;
+      delete projectDetail.dataset.userId;
       render();
     };
     closeDetail.addEventListener('click', closeProjectDetail);
     projectDetail.addEventListener('click', event => { if (event.target === projectDetail) closeProjectDetail(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && projectDetail.classList.contains('open')) closeProjectDetail(); });
     logout.addEventListener('click', () => { localStorage.removeItem('gb-construction-user'); localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
-    if (localStorage.getItem('gb-construction-user') === 'test@test') openApp();
+    if (currentUser()) openApp();
     else localStorage.removeItem('gb-construction-user');
   </script>
 </body>

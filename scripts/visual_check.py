@@ -36,17 +36,25 @@ with sync_playwright() as p:
     budget.get_by_role("button", name="Crear presupuesto").click()
     row = page.locator("tr").filter(has_text="Presupuesto Centro Medico")
     row.get_by_role("button", name="Editar planilla").click()
-    page.get_by_role("button", name="Agregar fila").click()
-    sheet_row = page.locator("[data-budget-item]").last
-    sheet_row.locator('[data-budget-field="certificado"]').fill("1")
-    sheet_row.locator('[data-budget-field="trabajo"]').fill("Estructura planta baja")
-    sheet_row.locator('[data-budget-field="manoObra"]').fill("Cuadrilla de hormigon")
-    sheet_row.locator('[data-budget-field="materiales"]').fill("Hormigon y hierro")
-    sheet_row.locator('[data-budget-field="montoManoObra"]').fill("1800000")
-    sheet_row.locator('[data-budget-field="montoMateriales"]').fill("3200000")
-    sheet_row.locator('[data-budget-field="montoDireccion"]').fill("500000")
-    sheet_row.locator('[data-budget-field="dias"]').fill("35")
-    sheet_row.locator('[data-budget-field="dias"]').press("Tab")
+    for description, quantity, unit, price in [
+        ("Cemento Portland", "120", "bolsas", "8500"),
+        ("Arena gruesa", "15", "m3", "32000"),
+        ("Cal hidratada", "60", "bolsas", "6200"),
+    ]:
+        page.get_by_role("button", name="Agregar subitem").click()
+        sheet_row = page.locator("[data-budget-item]").last
+        sheet_row.locator('[data-budget-field="certificado"]').fill("1")
+        sheet_row.locator('[data-budget-field="tipo"]').select_option("Material")
+        sheet_row.locator('[data-budget-field="descripcion"]').fill(description)
+        sheet_row.locator('[data-budget-field="cantidad"]').fill(quantity)
+        sheet_row.locator('[data-budget-field="unidad"]').fill(unit)
+        sheet_row.locator('[data-budget-field="precioUnitario"]').fill(price)
+        sheet_row.locator('[data-budget-field="dias"]').fill("15")
+        sheet_row.locator('[data-budget-field="dias"]').press("Tab")
+    descriptions = page.locator('[data-budget-field="descripcion"]')
+    expect(descriptions).to_have_count(3)
+    assert [descriptions.nth(index).input_value() for index in range(3)] == ["Cemento Portland", "Arena gruesa", "Cal hidratada"]
+    page.screenshot(path=str(artifacts / "gb-budget-subitems.png"), full_page=True)
     page.get_by_role("button", name="Cerrar", exact=True).click()
 
     # Obra creada desde presupuesto.
@@ -67,10 +75,14 @@ with sync_playwright() as p:
     certificate.get_by_label("Periodo").fill("2026-06")
     certificate.get_by_label("Certificacion presupuestada").select_option("1")
     certificate.get_by_label("Concepto").fill("Certificado estructura PB")
-    certificate.get_by_label("Modo de monto").select_option("presupuesto")
-    certificate.locator('select[name="estado"]').select_option("Presentada")
+    certificate.get_by_label("Origen de subitems").select_option("presupuesto")
+    expect(certificate.locator("[data-certificate-subitem]")).to_have_count(3)
+    certificate.locator('select[name="estado"]').select_option("Pendiente de aprobacion")
     certificate.get_by_role("button", name="Agregar certificacion").click()
     expect(page.get_by_text("Certificado estructura PB")).to_be_visible()
+    expect(page.get_by_text("Cemento Portland", exact=True)).to_be_visible()
+    expect(page.get_by_text("Arena gruesa", exact=True)).to_be_visible()
+    expect(page.get_by_text("Cal hidratada", exact=True)).to_be_visible()
 
     expense = page.locator('form[data-form="project-expense"]')
     expense.locator('select[name="categoria"]').select_option("Materiales")
@@ -80,7 +92,7 @@ with sync_playwright() as p:
     expense.locator('select[name="estado"]').select_option("Pendiente de pago")
     expense.get_by_label("Corresponde al presupuesto").check()
     budget_item_select = expense.get_by_label("Item presupuestado")
-    expect(budget_item_select.locator("option")).to_have_count(2)
+    expect(budget_item_select.locator("option")).to_have_count(4)
     budget_item_select.select_option(index=1)
     expense.get_by_role("button", name="Agregar gasto").click()
     expect(page.get_by_text("Compra hierro estructura")).to_be_visible()
@@ -92,6 +104,18 @@ with sync_playwright() as p:
     page.eval_on_selector("#projectDetail", "element => element.scrollTop = 0")
     page.screenshot(path=str(artifacts / "gb-project-control.png"), full_page=True)
     page.get_by_role("button", name="Cerrar", exact=True).click()
+
+    # Usuario supervisor separado del equipo y limitado a una sola obra.
+    page.get_by_role("button", name="Usuarios").click()
+    user = page.locator('form[data-form="user"]')
+    user.get_by_label("Nombre").fill("Supervisor Centro")
+    user.get_by_label("Email").fill("supervisor@test")
+    user.get_by_label("Contrasena").fill("SUP2026")
+    user.get_by_label("Tipo de usuario").select_option("Supervisor")
+    user.get_by_label("Centro Medico").check()
+    user.get_by_role("button", name="Crear usuario").click()
+    expect(page.get_by_text("Supervisor Centro")).to_be_visible()
+    page.screenshot(path=str(artifacts / "gb-users-permissions.png"), full_page=True)
 
     # Finanzas del estudio y catalogo editable.
     page.get_by_role("button", name="Estudio").click()
@@ -118,6 +142,56 @@ with sync_playwright() as p:
     page.locator('[data-person-task="obra-torre"]').press("Tab")
     assert page.locator('[data-person-task="obra-torre"]').input_value() == "Control de certificacion"
     page.screenshot(path=str(artifacts / "gb-team-tasks.png"), full_page=True)
+    page.get_by_role("button", name="Cerrar", exact=True).click()
+
+    # Validacion integral del rol Supervisor.
+    page.get_by_role("button", name="Cerrar sesion").click()
+    page.get_by_role("button", name="Iniciar sesion", exact=True).first.click()
+    page.get_by_label("Email").fill("supervisor@test")
+    page.get_by_label("Contrasena").fill("SUP2026")
+    page.get_by_role("button", name="Entrar al dashboard").click()
+    expect(page.get_by_role("button", name="Presupuestos")).to_have_count(0)
+    expect(page.get_by_role("button", name="Estudio")).to_have_count(0)
+    expect(page.get_by_role("button", name="Usuarios")).to_have_count(0)
+    supervisor_project = page.locator(".project-row").filter(has_text="Centro Medico")
+    expect(supervisor_project).to_be_visible()
+    expect(page.locator("#projectList").get_by_text("Torre Belgrano", exact=True)).to_have_count(0)
+    supervisor_project.get_by_role("button", name="Seguimiento").click()
+    expect(page.get_by_text("Monto cotizado")).to_have_count(0)
+    expect(page.get_by_text("Disponible contra cotizado")).to_have_count(0)
+
+    supervisor_certificate = page.locator('form[data-form="certificate"]')
+    supervisor_certificate.get_by_label("Periodo").fill("2026-07")
+    supervisor_certificate.get_by_label("Concepto").fill("Certificado supervisor")
+    first_subitem = supervisor_certificate.locator("[data-certificate-subitem]")
+    first_subitem.locator('[data-subitem-field="descripcion"]').fill("Cemento adicional")
+    first_subitem.locator('[data-subitem-field="cantidad"]').fill("20")
+    first_subitem.locator('[data-subitem-field="unidad"]').fill("bolsas")
+    first_subitem.locator('[data-subitem-field="precioUnitario"]').fill("9000")
+    supervisor_certificate.get_by_role("button", name="Agregar subitem").click()
+    second_subitem = supervisor_certificate.locator("[data-certificate-subitem]").last
+    second_subitem.locator('[data-subitem-field="tipo"]').select_option("Material")
+    second_subitem.locator('[data-subitem-field="descripcion"]').fill("Arena fina")
+    second_subitem.locator('[data-subitem-field="cantidad"]').fill("4")
+    second_subitem.locator('[data-subitem-field="unidad"]').fill("m3")
+    second_subitem.locator('[data-subitem-field="precioUnitario"]').fill("35000")
+    supervisor_certificate.get_by_role("button", name="Agregar certificacion").click()
+    cert_row = page.locator("[data-cert-row]").filter(has_text="Certificado supervisor")
+    expect(cert_row).to_contain_text("Pendiente de aprobacion")
+    expect(cert_row).to_contain_text("2 subitems")
+
+    supervisor_expense = page.locator('form[data-form="project-expense"]')
+    supervisor_expense.get_by_label("Descripcion").fill("Compra urgente supervisor")
+    supervisor_expense.get_by_label("Monto").fill("180000")
+    supervisor_expense.locator('select[name="estado"]').select_option("Pagado")
+    supervisor_expense.get_by_role("button", name="Agregar gasto").click()
+    expect(page.get_by_text("Compra urgente supervisor")).to_be_visible()
+    page.screenshot(path=str(artifacts / "gb-supervisor-project.png"), full_page=True)
+    page.get_by_role("button", name="Cerrar", exact=True).click()
+    page.get_by_role("button", name="Equipo").click()
+    expect(page.get_by_text("Solo lectura")).to_be_visible()
+    expect(page.get_by_role("button", name="Editar")).to_have_count(0)
+    expect(page.get_by_role("button", name="Guardar integrante")).to_have_count(0)
 
     mobile = browser.new_page(viewport={"width": 390, "height": 844}, is_mobile=True)
     mobile.goto("http://127.0.0.1:8792", wait_until="domcontentloaded")
