@@ -112,9 +112,11 @@ const html = String.raw`<!doctype html>
     .section-head h3, .panel h3, .form h3 { margin: 0; }
     .section-head p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
     .project-list { display: grid; }
-    .project-row { display: grid; grid-template-columns: minmax(180px, 1.3fr) minmax(130px, .8fr) 120px 150px auto; gap: 14px; align-items: center; padding: 16px 18px; border-bottom: 1px solid #edf2ee; }
+    .project-row { display: grid; grid-template-columns: minmax(170px, 1.3fr) minmax(120px, .8fr) minmax(130px, .8fr) minmax(180px, 1fr); gap: 14px; align-items: center; padding: 16px 18px; border-bottom: 1px solid #edf2ee; }
     .project-row:last-child { border-bottom: 0; }
     .project-row:hover { background: #fbfcf8; }
+    .project-row > * { min-width: 0; }
+    .project-row .actions { grid-column: 1 / -1; justify-content: flex-end; }
     .project-name { font-weight: 850; }
     .project-meta { color: var(--muted); font-size: 13px; margin-top: 3px; }
     .progress-cell { min-width: 110px; }
@@ -168,6 +170,8 @@ const html = String.raw`<!doctype html>
     .alert { border-left: 4px solid var(--brand-2); padding: 11px 13px; background: #fff8e8; color: #654912; font-size: 13px; }
     .alert.danger { border-left-color: var(--danger); background: var(--danger-soft); color: #752c26; }
     .alert.ok { border-left-color: var(--brand); background: var(--ok-soft); color: var(--brand-strong); }
+    .project-cost > b { display: block; white-space: nowrap; }
+    .project-cost .alert { display: block; width: 100%; margin-top: 7px; padding: 7px 9px; line-height: 1.3; overflow-wrap: anywhere; }
     .comparison { display: grid; gap: 10px; }
     .comparison-row { display: grid; grid-template-columns: 150px 1fr auto; gap: 12px; align-items: center; }
     .comparison-row .bar { min-width: 0; width: 100%; }
@@ -209,7 +213,7 @@ const html = String.raw`<!doctype html>
       .side { position: static; height: auto; }
       .tabs { grid-template-columns: repeat(4, 1fr); }
       .project-row { grid-template-columns: 1fr 1fr; }
-      .project-row .actions { grid-column: 1 / -1; justify-content: flex-start; }
+      .project-row .actions { justify-content: flex-start; }
       .module-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     @media (max-width: 640px) {
@@ -361,10 +365,11 @@ const html = String.raw`<!doctype html>
   <div class="modal-backdrop" id="authModal">
     <div class="modal">
       <h2 id="authTitle">Crear cuenta</h2>
-      <p class="micro">Ingresa cualquier email para entrar al MVP.</p>
+      <p class="micro">Usuario: <b>test@test</b> · Contrasena: <b>GB2026</b></p>
       <form id="authForm">
-        <label>Email<input id="email" type="email" autocomplete="email" required placeholder="tu@estudio.com"></label>
-        <label>Contrasena<input id="password" type="password" autocomplete="current-password" required minlength="4" placeholder="Minimo 4 caracteres"></label>
+        <label>Email<input id="email" type="email" autocomplete="email" required placeholder="test@test"></label>
+        <label>Contrasena<input id="password" type="password" autocomplete="current-password" required minlength="4" placeholder="GB2026"></label>
+        <div id="authError" class="alert danger hidden" role="alert">Email o contrasena incorrectos.</div>
         <button class="btn primary" type="submit">Entrar al dashboard</button>
         <button class="btn ghost" type="button" id="closeModal">Cancelar</button>
       </form>
@@ -385,9 +390,9 @@ const html = String.raw`<!doctype html>
   <script>
     const seed = {
       obras: [
-        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', presupuesto: 18500000, avanceReal: 36, presupuestoId: 'pres-torre' },
-        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', presupuesto: 8200000, avanceReal: 10, presupuestoId: '' },
-        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', presupuesto: 26400000, avanceReal: 94, presupuestoId: '' }
+        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', presupuesto: 18500000, presupuestoId: 'pres-torre' },
+        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', presupuesto: 8200000, presupuestoId: '' },
+        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', presupuesto: 26400000, presupuestoId: '' }
       ],
       presupuestos: [
         {
@@ -405,9 +410,9 @@ const html = String.raw`<!doctype html>
         { id: crypto.randomUUID(), obraId: 'obra-central', presupuestoCertificado: '', periodo: '2026-05', concepto: 'Terminaciones finales', monto: 4300000, estado: 'Cobrada' }
       ],
       gastosObra: [
-        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-08', categoria: 'Mano de obra', subcategoria: 'Contratistas externos', concepto: 'Cuadrilla estructura', monto: 1480000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1', tipoGasto: 'Mano de obra' },
-        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-10', categoria: 'Materiales', subcategoria: 'Cemento y aridos', concepto: 'Compra de cemento', monto: 840000, estado: 'Pendiente de pago', medioPago: 'Cuenta corriente', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1', tipoGasto: 'Materiales' },
-        { id: crypto.randomUUID(), obraId: 'obra-central', fecha: '2026-05-04', categoria: 'Servicios y alquileres', subcategoria: 'Servicios tercerizados', concepto: 'Limpieza final', monto: 310000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: false, presupuestoItemId: '', tipoGasto: 'Otro' }
+        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-08', categoria: 'Mano de obra', subcategoria: 'Contratistas externos', concepto: 'Cuadrilla estructura', monto: 1480000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1' },
+        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-10', categoria: 'Materiales', subcategoria: 'Cemento y aridos', concepto: 'Compra de cemento', monto: 840000, estado: 'Pendiente de pago', medioPago: 'Cuenta corriente', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1' },
+        { id: crypto.randomUUID(), obraId: 'obra-central', fecha: '2026-05-04', categoria: 'Servicios y alquileres', subcategoria: 'Servicios tercerizados', concepto: 'Limpieza final', monto: 310000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: false, presupuestoItemId: '' }
       ],
       finanzasEstudio: [
         { id: crypto.randomUUID(), fecha: '2026-05-05', tipo: 'Ingreso', categoria: 'Administracion', subcategoria: 'Otros', concepto: 'Anticipo proyecto Caballito', monto: 2200000, estado: 'Cobrado', observaciones: '' },
@@ -434,23 +439,19 @@ const html = String.raw`<!doctype html>
       }
     };
     const views = {
-      obras: ['Obras', 'Cartera, avance, certificaciones, cobros y desvios por proyecto.'],
+      obras: ['Obras', 'Cartera, certificaciones, cobros y desvios por proyecto.'],
       presupuestos: ['Presupuestos', 'Planillas detalladas por certificacion, trabajo, materiales y tiempos.'],
       finanzas: ['Finanzas del estudio', 'Ingresos y egresos administrativos separados de las obras.'],
       equipo: ['Equipo', 'Personas, disponibilidad, obras asignadas y tareas actuales.']
     };
     const legacyState = localStorage.getItem('brikr-mvp');
-    const legacyUser = localStorage.getItem('brikr-user');
     if (legacyState && !localStorage.getItem('gb-construction-assistant')) {
       localStorage.setItem('gb-construction-assistant', legacyState);
-    }
-    if (legacyUser && !localStorage.getItem('gb-construction-user')) {
-      localStorage.setItem('gb-construction-user', legacyUser);
     }
     let state = JSON.parse(localStorage.getItem('gb-construction-assistant') || 'null') || seed;
     const normalizeState = () => {
       state.obras = Array.isArray(state.obras) ? state.obras : [];
-      state.obras = state.obras.map(obra => ({ ...obra, avanceReal: number(obra.avanceReal ?? obra.avance), presupuestoId: obra.presupuestoId || '', presupuesto: number(obra.presupuesto) }));
+      state.obras = state.obras.map(({ avanceReal, avance, ...obra }) => ({ ...obra, presupuestoId: obra.presupuestoId || '', presupuesto: number(obra.presupuesto) }));
       state.presupuestos = Array.isArray(state.presupuestos) ? state.presupuestos : [];
       state.presupuestos = state.presupuestos.map(presupuesto => ({ ...presupuesto, items: Array.isArray(presupuesto.items) ? presupuesto.items : [] }));
       state.certificaciones = (state.certificaciones || []).map(item => ({ ...item, estado: ['Presentada', 'Aprobada', 'Cobrada'].includes(item.estado) ? item.estado : 'Presentada' }));
@@ -466,8 +467,7 @@ const html = String.raw`<!doctype html>
         medioPago: item.medioPago || '',
         observaciones: item.observaciones || '',
         presupuestado: Boolean(item.presupuestado),
-        presupuestoItemId: item.presupuestoItemId || '',
-        tipoGasto: item.tipoGasto || 'Otro'
+        presupuestoItemId: item.presupuestoItemId || ''
       }));
       const legacyMaterials = Array.isArray(state.materiales) ? state.materiales : [];
       legacyMaterials.forEach(item => {
@@ -477,7 +477,7 @@ const html = String.raw`<!doctype html>
             categoria: 'Materiales', subcategoria: 'Otros materiales', concepto: item.item || 'Material',
             monto: number(item.costo), estado: item.estado === 'Entregado' ? 'Pagado' : 'Pendiente de pago',
             medioPago: '', observaciones: 'Migrado desde el modulo anterior de materiales.',
-            presupuestado: false, presupuestoItemId: '', tipoGasto: 'Materiales'
+            presupuestado: false, presupuestoItemId: ''
           });
         }
       });
@@ -546,7 +546,7 @@ const html = String.raw`<!doctype html>
           const spent = projectExpenses(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
           const certified = projectCertificates(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
           const certifiedPct = number(obra.presupuesto) ? certified / number(obra.presupuesto) * 100 : 0;
-          return spent > number(obra.presupuesto) * Math.max(number(obra.avanceReal) / 100, .15) || Math.abs(number(obra.avanceReal) - certifiedPct) > 10;
+          return spent > number(obra.presupuesto) * Math.max(certifiedPct / 100, .15);
         }).length;
         stats.innerHTML = metricCards([
           ['Obras activas', active.length], ['Finalizadas', finished.length], ['Cotizado activo', money(quoted)],
@@ -597,14 +597,14 @@ const html = String.raw`<!doctype html>
         const certified = certificates.reduce((sum, item) => sum + number(item.monto), 0);
         const certifiedPct = number(obra.presupuesto) ? Math.round(certified / number(obra.presupuesto) * 100) : 0;
         const expenses = projectExpenses(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
-        const expectedSpend = number(obra.presupuesto) * number(obra.avanceReal) / 100;
+        const expectedSpend = number(obra.presupuesto) * certifiedPct / 100;
         const deviation = expenses - expectedSpend;
-        const alertClass = Math.abs(certifiedPct - number(obra.avanceReal)) > 10 || deviation > number(obra.presupuesto) * .08 ? 'danger' : 'ok';
+        const alertClass = deviation > number(obra.presupuesto) * .08 ? 'danger' : 'ok';
         return '<article class="project-row">' +
           '<div><div class="project-name">' + escapeHtml(obra.nombre) + '</div><div class="project-meta">' + escapeHtml(obra.cliente) + '</div></div>' +
-          '<div><span class="pill">' + escapeHtml(obra.estado) + '</span><div class="project-meta">Avance real: ' + number(obra.avanceReal) + '%</div></div>' +
+          '<div><span class="pill">' + escapeHtml(obra.estado) + '</span></div>' +
           '<div class="progress-cell"><b>' + certifiedPct + '% certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div></div>' +
-          '<div><b>' + money(expenses) + '</b><div class="project-meta"><span class="alert ' + alertClass + '">' + (deviation > 0 ? 'Sobre' : 'Bajo') + ' curva: ' + money(Math.abs(deviation)) + '</span></div></div>' +
+          '<div class="project-cost"><b>' + money(expenses) + '</b><span class="alert ' + alertClass + '">' + (deviation > 0 ? 'Sobre' : 'Bajo') + ' curva: ' + money(Math.abs(deviation)) + '</span></div>' +
           '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button><button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button></div>' +
         '</article>';
       }).join('') : '<div class="empty">Todavia no hay obras. Crea la primera desde el formulario.</div>';
@@ -617,7 +617,6 @@ const html = String.raw`<!doctype html>
           '<label>Nombre<input name="nombre" required></label>' +
           '<label>Cliente<input name="cliente" required></label>' +
           '<label>Estado<select name="estado" required><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label>' +
-          '<label>Avance real %<input name="avanceReal" type="number" min="0" max="100" value="0" required></label>' +
           '<label>Monto total cotizado<input name="presupuesto" type="number" min="0" required></label>' +
           '<label class="hidden toggle-row" data-import-field><span>Importar certificaciones presupuestadas</span><input name="importarCertificados" type="checkbox" checked></label>' +
           '<button class="btn primary" type="submit">Crear obra</button></form></div>';
@@ -749,8 +748,7 @@ const html = String.raw`<!doctype html>
       const pendingAmount = expenseAmount - paidAmount;
       const unbudgeted = expenses.filter(item => !item.presupuestado).reduce((sum, item) => sum + number(item.monto), 0);
       const deviation = expenseAmount - number(obra.presupuesto);
-      const progressGap = number(obra.avanceReal) - certifiedPct;
-      const expectedSpend = number(obra.presupuesto) * number(obra.avanceReal) / 100;
+      const expectedSpend = number(obra.presupuesto) * certifiedPct / 100;
       const spendGap = expenseAmount - expectedSpend;
       const linkedBudget = budgetById(obra.presupuestoId);
       const budgetItems = linkedBudget?.items || [];
@@ -765,14 +763,9 @@ const html = String.raw`<!doctype html>
       ).join('') : '<div class="empty">Sin gastos cargados.</div>';
       const plannedOptions = plannedCertificates.map(value => '<option value="' + escapeHtml(value) + '">Certificacion ' + escapeHtml(value) + '</option>').join('');
       const budgetItemOptions = budgetItems.map(item => '<option value="' + item.id + '">' + escapeHtml('Cert. ' + item.certificado + ' · ' + item.trabajo) + '</option>').join('');
-      const alertText = progressGap > 10
-        ? '<div class="alert danger">La obra avanza ' + progressGap + ' puntos más rápido que la certificación.</div>'
-        : progressGap < -10
-          ? '<div class="alert danger">La certificación supera el avance real por ' + Math.abs(progressGap) + ' puntos.</div>'
-          : '<div class="alert ok">El avance real y la certificación están alineados.</div>';
       const spendAlert = spendGap > number(obra.presupuesto) * .08
         ? '<div class="alert danger">El gasto acumulado supera la curva esperada por ' + money(spendGap) + '.</div>'
-        : '<div class="alert ok">El gasto está dentro de la curva esperada para el avance informado.</div>';
+        : '<div class="alert ok">El gasto está dentro de la curva esperada para el nivel certificado.</div>';
       const categoryTotals = {};
       expenses.forEach(item => {
         const key = item.categoria + ' / ' + item.subcategoria;
@@ -782,18 +775,18 @@ const html = String.raw`<!doctype html>
       const categories = Object.entries(state.catalogos.obra).map(([category, values]) => '<div class="catalog-item"><b>' + escapeHtml(category) + '</b><span class="project-meta">' + escapeHtml(values.join(' · ')) + '</span></div>').join('');
       detailContent.innerHTML =
         '<div class="module-stats">' + metricCards([
-          ['Avance real', number(obra.avanceReal) + '%'], ['Porcentaje certificado', certifiedPct + '%'], ['Monto cotizado', money(obra.presupuesto)],
+          ['Porcentaje certificado', certifiedPct + '%'], ['Monto cotizado', money(obra.presupuesto)],
           ['Monto certificado', money(certifiedAmount)], ['Monto cobrado', money(collectedAmount)], ['Monto gastado', money(expenseAmount)],
           ['Pendiente de pago', money(pendingAmount)], ['Desvio total', money(deviation), deviation > 0 ? 'money-out' : 'money-in']
         ]) + '</div>' +
-        '<div class="split-panels"><section class="panel"><div class="section-head"><div><h3>Comparación de avance</h3><p>Avance real, certificación y gasto sobre el monto cotizado.</p></div><form data-form="project-progress"><label>Avance real %<input name="avanceReal" type="number" min="0" max="100" value="' + number(obra.avanceReal) + '"></label><button class="btn secondary small" type="submit">Actualizar</button></form></div><div class="panel-body comparison"><div class="comparison-row"><b>Avance real</b><div class="bar"><i style="width:' + Math.min(100, number(obra.avanceReal)) + '%"></i></div><strong>' + number(obra.avanceReal) + '%</strong></div><div class="comparison-row"><b>Certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div><strong>' + certifiedPct + '%</strong></div><div class="comparison-row"><b>Gastado</b><div class="bar"><i style="width:' + Math.min(100, number(obra.presupuesto) ? expenseAmount / number(obra.presupuesto) * 100 : 0) + '%"></i></div><strong>' + (number(obra.presupuesto) ? Math.round(expenseAmount / number(obra.presupuesto) * 100) : 0) + '%</strong></div>' + alertText + spendAlert + '</div></section>' +
+        '<div class="split-panels"><section class="panel"><div class="section-head"><div><h3>Certificación y gasto</h3><p>Comparación económica sobre el monto cotizado.</p></div></div><div class="panel-body comparison"><div class="comparison-row"><b>Certificado</b><div class="bar"><i style="width:' + Math.min(100, certifiedPct) + '%"></i></div><strong>' + certifiedPct + '%</strong></div><div class="comparison-row"><b>Gastado</b><div class="bar"><i style="width:' + Math.min(100, number(obra.presupuesto) ? expenseAmount / number(obra.presupuesto) * 100 : 0) + '%"></i></div><strong>' + (number(obra.presupuesto) ? Math.round(expenseAmount / number(obra.presupuesto) * 100) : 0) + '%</strong></div>' + spendAlert + '</div></section>' +
         '<section class="panel"><div class="section-head"><div><h3>Control económico</h3><p>Presupuestado, real y no previsto.</p></div></div><div class="panel-body catalog-list"><div class="catalog-item"><b>Total pagado</b>' + money(paidAmount) + '</div><div class="catalog-item"><b>Total pendiente</b>' + money(pendingAmount) + '</div><div class="catalog-item"><b>Gastos no presupuestados</b><span class="' + (unbudgeted ? 'money-out' : 'money-in') + '">' + money(unbudgeted) + '</span></div><div class="catalog-item"><b>Disponible contra cotizado</b>' + money(number(obra.presupuesto) - expenseAmount) + '</div></div></section></div>' +
         '<div class="detail-grid">' +
           '<section class="panel"><div class="section-head"><div><h3>Certificaciones</h3><p>Estados: presentada, aprobada o cobrada.</p></div></div><div class="ledger">' + certRows + '</div>' +
             '<form class="inline-form" data-form="certificate"><label>Periodo<input name="periodo" type="month" required></label><label>Certificacion presupuestada<select name="presupuestoCertificado"><option value="">Sin vincular</option>' + plannedOptions + '</select></label><label class="full">Concepto<input name="concepto" required></label><label>Modo de monto<select name="montoModo"><option value="manual">Monto manual</option><option value="presupuesto">Usar monto presupuestado</option></select></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Presentada</option><option>Aprobada</option><option>Cobrada</option></select></label><button class="btn primary" type="submit">Agregar certificacion</button></form>' +
           '</section>' +
           '<section class="panel"><div class="toolbar"><label>Estado<select data-filter="expense-status"><option value="">Todos</option><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Categoria<select data-filter="expense-category"><option value="">Todas</option>' + categoryOptions('obra') + '</select></label></div><div class="section-head"><div><h3>Gastos de la obra</h3><p>Incluye materiales reales, mano de obra y gastos no presupuestados.</p></div></div><div class="ledger" id="expenseRows">' + expenseRows + '</div>' +
-            '<form class="inline-form" data-form="project-expense"><label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label><label>Categoria<select name="categoria" data-category-scope="obra">' + categoryOptions('obra') + '</select></label><label>Subcategoria<select name="subcategoria" data-subcategory-scope="obra">' + subcategoryOptions('obra', Object.keys(state.catalogos.obra)[0]) + '</select></label><label>Tipo de gasto<select name="tipoGasto"><option>Materiales</option><option>Mano de obra</option><option>Direccion tecnica</option><option>Otro</option></select></label><label class="full">Descripcion<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Medio de pago<input name="medioPago"></label><label class="toggle-row"><span>Corresponde al presupuesto</span><input name="presupuestado" type="checkbox" data-budgeted-toggle></label><label class="full hidden" data-budget-item-field>Item presupuestado<select name="presupuestoItemId"><option value="">Seleccionar item</option>' + budgetItemOptions + '</select></label><label class="full">Observaciones<textarea name="observaciones"></textarea></label><button class="btn primary" type="submit">Agregar gasto</button></form>' +
+            '<form class="inline-form" data-form="project-expense"><label>Fecha<input name="fecha" type="date" value="' + today() + '" required></label><label>Categoria<select name="categoria" data-category-scope="obra">' + categoryOptions('obra') + '</select></label><label>Subcategoria<select name="subcategoria" data-subcategory-scope="obra">' + subcategoryOptions('obra', Object.keys(state.catalogos.obra)[0]) + '</select></label><label class="full">Descripcion<input name="concepto" required></label><label>Monto<input name="monto" type="number" min="0" required></label><label>Estado<select name="estado"><option>Pendiente de pago</option><option>Pagado</option></select></label><label>Medio de pago<input name="medioPago"></label><label class="toggle-row"><span>Corresponde al presupuesto</span><input name="presupuestado" type="checkbox" data-budgeted-toggle></label><label class="full hidden" data-budget-item-field>Item presupuestado<select name="presupuestoItemId"><option value="">Seleccionar item</option>' + budgetItemOptions + '</select></label><label class="full">Observaciones<textarea name="observaciones"></textarea></label><button class="btn primary" type="submit">Agregar gasto</button></form>' +
           '</section></div>' +
         '<div class="split-panels" style="margin-top:16px"><section class="panel"><div class="section-head"><div><h3>Desvio por categoria</h3><p>Distribución real por categoría y subcategoría.</p></div></div><div class="panel-body catalog-list">' + categoryBreakdown + '</div></section><section class="panel"><div class="section-head"><div><h3>Categorias de gastos de obra</h3><p>Catálogo editable sin modificar código.</p></div></div><div class="panel-body"><div class="catalog-list">' + categories + '</div><form class="form" data-form="catalog" style="margin-top:14px"><input type="hidden" name="scope" value="obra"><label>Categoria<input name="categoria" required></label><label>Nueva subcategoria<input name="subcategoria" required></label><button class="btn secondary" type="submit">Agregar al catalogo</button></form></div></section></div>';
       projectDetail.classList.add('open');
@@ -801,6 +794,7 @@ const html = String.raw`<!doctype html>
     }
     document.querySelectorAll('[data-auth]').forEach(btn => btn.addEventListener('click', () => {
       authTitle.textContent = btn.dataset.auth === 'login' ? 'Iniciar sesion' : 'Crear cuenta';
+      authError.classList.add('hidden');
       authModal.style.display = 'grid';
       email.focus();
     }));
@@ -808,7 +802,12 @@ const html = String.raw`<!doctype html>
     authModal.addEventListener('click', event => { if (event.target === authModal) authModal.style.display = 'none'; });
     authForm.addEventListener('submit', event => {
       event.preventDefault();
-      localStorage.setItem('gb-construction-user', email.value);
+      const validEmail = email.value.trim().toLowerCase() === 'test@test';
+      const validPassword = password.value === 'GB2026';
+      authError.classList.toggle('hidden', validEmail && validPassword);
+      if (!validEmail || !validPassword) return;
+      localStorage.setItem('gb-construction-user', 'test@test');
+      password.value = '';
       authModal.style.display = 'none';
       notify('Sesion iniciada');
       openApp();
@@ -835,7 +834,7 @@ const html = String.raw`<!doctype html>
             }));
           }
         }
-        state.obras.push({ id: data.id, nombre: data.nombre, cliente: data.cliente, estado: data.estado, avanceReal: number(data.avanceReal), presupuesto: number(data.presupuesto), presupuestoId: data.presupuestoId || '', certificacionesPlanificadas });
+        state.obras.push({ id: data.id, nombre: data.nombre, cliente: data.cliente, estado: data.estado, presupuesto: number(data.presupuesto), presupuestoId: data.presupuestoId || '', certificacionesPlanificadas });
       }
       if (formType === 'budget') state.presupuestos.push({ id: data.id, nombre: data.nombre, cliente: data.cliente, estado: data.estado, obraId: '', items: [] });
       if (formType === 'finance') state.finanzasEstudio.push(data);
@@ -959,9 +958,6 @@ const html = String.raw`<!doctype html>
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
       data.id = crypto.randomUUID();
-      if (form.dataset.form === 'project-progress' && selectedProjectId) {
-        obraById(selectedProjectId).avanceReal = number(data.avanceReal);
-      }
       if (form.dataset.form === 'certificate' && selectedProjectId) {
         data.obraId = selectedProjectId;
         const obra = obraById(selectedProjectId);
@@ -1112,7 +1108,8 @@ const html = String.raw`<!doctype html>
     projectDetail.addEventListener('click', event => { if (event.target === projectDetail) closeProjectDetail(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && projectDetail.classList.contains('open')) closeProjectDetail(); });
     logout.addEventListener('click', () => { localStorage.removeItem('gb-construction-user'); localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
-    if (localStorage.getItem('gb-construction-user')) openApp();
+    if (localStorage.getItem('gb-construction-user') === 'test@test') openApp();
+    else localStorage.removeItem('gb-construction-user');
   </script>
 </body>
 </html>`;
