@@ -2,6 +2,8 @@
 
 MVP de gestion de obras servido por un Cloudflare Worker.
 
+Produccion: https://gb-construction-assistant.guidoscopel-gb.workers.dev
+
 ## Funcionalidad
 
 - Landing en español para profesionales de la construcción.
