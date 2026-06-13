@@ -1,5 +1,3 @@
-export interface Env {}
-
 const html = String.raw`<!doctype html>
 <html lang="es">
 <head>
@@ -403,47 +401,13 @@ const html = String.raw`<!doctype html>
 
   <script>
     const seed = {
-      obras: [
-        { id: 'obra-torre', nombre: 'Torre Belgrano', cliente: 'Grupo Norte', estado: 'En obra', presupuesto: 18500000, presupuestoId: 'pres-torre' },
-        { id: 'obra-residencia', nombre: 'Residencia Norte', cliente: 'Familia Ledesma', estado: 'Planificacion', presupuesto: 8200000, presupuestoId: '' },
-        { id: 'obra-central', nombre: 'Edificio Central', cliente: 'M2 Desarrollos', estado: 'Entrega', presupuesto: 26400000, presupuestoId: '' }
-      ],
-      presupuestos: [
-        {
-          id: 'pres-torre', nombre: 'Presupuesto Torre Belgrano', cliente: 'Grupo Norte', estado: 'Aprobado', obraId: 'obra-torre',
-          items: [
-            { id: 'item-1', certificado: '1', tipo: 'Material', descripcion: 'Cemento Portland', cantidad: 400, unidad: 'bolsas', precioUnitario: 8500, dias: 0 },
-            { id: 'item-2', certificado: '1', tipo: 'Material', descripcion: 'Arena gruesa', cantidad: 35, unidad: 'm3', precioUnitario: 32000, dias: 0 },
-            { id: 'item-3', certificado: '1', tipo: 'Material', descripcion: 'Cal hidratada', cantidad: 120, unidad: 'bolsas', precioUnitario: 6200, dias: 0 },
-            { id: 'item-4', certificado: '1', tipo: 'Mano de obra', descripcion: 'Cuadrilla de estructura y mamposteria', cantidad: 1, unidad: 'global', precioUnitario: 2700000, dias: 53 },
-            { id: 'item-5', certificado: '1', tipo: 'Direccion tecnica', descripcion: 'Direccion y control certificado 1', cantidad: 1, unidad: 'global', precioUnitario: 750000, dias: 0 },
-            { id: 'item-6', certificado: '2', tipo: 'Material', descripcion: 'Canerias y accesorios sanitarios', cantidad: 1, unidad: 'global', precioUnitario: 1850000, dias: 0 },
-            { id: 'item-7', certificado: '2', tipo: 'Mano de obra', descripcion: 'Instalacion sanitaria', cantidad: 1, unidad: 'global', precioUnitario: 1200000, dias: 24 }
-          ]
-        }
-      ],
-      certificaciones: [
-        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-04', concepto: 'Estructura nivel 8', monto: 2850000, estado: 'Aprobada', subitems: [{ id: crypto.randomUUID(), tipo: 'Material', descripcion: 'Hormigon elaborado', cantidad: 1, unidad: 'global', precioUnitario: 1650000 }, { id: crypto.randomUUID(), tipo: 'Mano de obra', descripcion: 'Cuadrilla de hormigon', cantidad: 1, unidad: 'global', precioUnitario: 1200000 }] },
-        { id: crypto.randomUUID(), obraId: 'obra-torre', presupuestoCertificado: '1', periodo: '2026-05', concepto: 'Mamposteria nivel 5', monto: 1980000, estado: 'Pendiente de aprobacion', subitems: [{ id: crypto.randomUUID(), tipo: 'Material', descripcion: 'Ladrillos huecos', cantidad: 1, unidad: 'global', precioUnitario: 1080000 }, { id: crypto.randomUUID(), tipo: 'Mano de obra', descripcion: 'Colocacion de mamposteria', cantidad: 1, unidad: 'global', precioUnitario: 900000 }] },
-        { id: crypto.randomUUID(), obraId: 'obra-central', presupuestoCertificado: '', periodo: '2026-05', concepto: 'Terminaciones finales', monto: 4300000, estado: 'Cobrada', subitems: [{ id: crypto.randomUUID(), tipo: 'Trabajo', descripcion: 'Terminaciones finales', cantidad: 1, unidad: 'global', precioUnitario: 4300000 }] }
-      ],
-      gastosObra: [
-        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-08', categoria: 'Mano de obra', subcategoria: 'Contratistas externos', concepto: 'Cuadrilla estructura', monto: 1480000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1' },
-        { id: crypto.randomUUID(), obraId: 'obra-torre', fecha: '2026-05-10', categoria: 'Materiales', subcategoria: 'Cemento y aridos', concepto: 'Compra de cemento', monto: 840000, estado: 'Pendiente de pago', medioPago: 'Cuenta corriente', observaciones: '', presupuestado: true, presupuestoItemId: 'item-1' },
-        { id: crypto.randomUUID(), obraId: 'obra-central', fecha: '2026-05-04', categoria: 'Servicios y alquileres', subcategoria: 'Servicios tercerizados', concepto: 'Limpieza final', monto: 310000, estado: 'Pagado', medioPago: 'Transferencia', observaciones: '', presupuestado: false, presupuestoItemId: '' }
-      ],
-      finanzasEstudio: [
-        { id: crypto.randomUUID(), fecha: '2026-05-05', tipo: 'Ingreso', categoria: 'Administracion', subcategoria: 'Otros', concepto: 'Anticipo proyecto Caballito', monto: 2200000, estado: 'Cobrado', observaciones: '' },
-        { id: crypto.randomUUID(), fecha: '2026-05-06', tipo: 'Egreso', categoria: 'Administracion', subcategoria: 'Alquiler', concepto: 'Alquiler oficina', monto: 680000, estado: 'Pagado', observaciones: '' },
-        { id: crypto.randomUUID(), fecha: '2026-05-09', tipo: 'Egreso', categoria: 'Administracion', subcategoria: 'Software', concepto: 'Licencias y servicios', monto: 175000, estado: 'Pagado', observaciones: '' }
-      ],
-      equipo: [
-        { id: crypto.randomUUID(), nombre: 'Julia Benitez', rol: 'Arquitecta', activo: true, asignaciones: [{ obraId: 'obra-torre', tarea: 'Revision de estructura' }, { obraId: 'obra-residencia', tarea: 'Anteproyecto ejecutivo' }] },
-        { id: crypto.randomUUID(), nombre: 'Martin Paz', rol: 'Supervisor', activo: true, asignaciones: [{ obraId: 'obra-torre', tarea: 'Coordinacion de contratistas' }, { obraId: 'obra-central', tarea: 'Control de entrega' }] }
-      ],
-      usuarios: [
-        { id: 'user-owner', nombre: 'Propietario principal', email: 'test@test', password: 'GB2026', tipo: 'Propietario', activo: true, obraIds: [] }
-      ],
+      obras: [],
+      presupuestos: [],
+      certificaciones: [],
+      gastosObra: [],
+      finanzasEstudio: [],
+      equipo: [],
+      usuarios: [],
       catalogos: {
         obra: {
           'Materiales': ['Cemento y aridos', 'Hierro y estructura', 'Ladrillos, bloques y mamposteria', 'Instalaciones electricas', 'Instalaciones sanitarias', 'Revestimientos', 'Pintura', 'Aberturas', 'Equipamiento', 'Otros materiales'],
@@ -466,11 +430,8 @@ const html = String.raw`<!doctype html>
       equipo: ['Equipo', 'Personas, disponibilidad, obras asignadas y tareas actuales.'],
       usuarios: ['Usuarios', 'Accesos internos, roles y proyectos habilitados.']
     };
-    const legacyState = localStorage.getItem('brikr-mvp');
-    if (legacyState && !localStorage.getItem('gb-construction-assistant')) {
-      localStorage.setItem('gb-construction-assistant', legacyState);
-    }
-    let state = JSON.parse(localStorage.getItem('gb-construction-assistant') || 'null') || seed;
+    let state = structuredClone(seed);
+    let sessionUser = null;
     const normalizeState = () => {
       state.obras = Array.isArray(state.obras) ? state.obras : [];
       state.obras = state.obras.map(({ avanceReal, avance, ...obra }) => ({ ...obra, presupuestoId: obra.presupuestoId || '', presupuesto: number(obra.presupuesto) }));
@@ -592,11 +553,39 @@ const html = String.raw`<!doctype html>
     const obraName = id => (obraById(id) || {}).nombre || 'Obra sin asignar';
     const obraOptions = selected => '<option value="">Seleccionar obra</option>' + state.obras.map(obra => '<option value="' + escapeHtml(obra.id) + '"' + (obra.id === selected ? ' selected' : '') + '>' + escapeHtml(obra.nombre) + '</option>').join('');
     const today = () => new Date().toISOString().slice(0, 10);
-    normalizeState();
-    const save = () => localStorage.setItem('gb-construction-assistant', JSON.stringify(state));
+    const applyServerPayload = payload => {
+      state = payload.state || structuredClone(seed);
+      sessionUser = payload.currentUser || null;
+      normalizeState();
+    };
+    let saveQueue = Promise.resolve();
+    let saveVersion = 0;
+    const save = () => {
+      const snapshot = structuredClone(state);
+      const version = ++saveVersion;
+      const operation = saveQueue.catch(() => {}).then(async () => {
+        const response = await fetch('/api/state', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ state: snapshot })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 401) {
+            sessionUser = null;
+            app.style.display = 'none';
+            site.style.display = 'block';
+          }
+          throw new Error(payload.error || 'No se pudo guardar en Cloudflare D1');
+        }
+        if (version === saveVersion) applyServerPayload(payload);
+      });
+      saveQueue = operation;
+      return operation;
+    };
     const notify = text => { toast.textContent = text; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2200); };
     const budgetById = id => state.presupuestos.find(item => item.id === id);
-    const currentUser = () => state.usuarios.find(usuario => usuario.email === localStorage.getItem('gb-construction-user') && usuario.activo);
+    const currentUser = () => sessionUser;
     const isOwner = () => currentUser()?.tipo === 'Propietario';
     const canAccessObra = obraId => isOwner() || Boolean(currentUser()?.obraIds.includes(obraId));
     const visibleObras = () => state.obras.filter(obra => canAccessObra(obra.id));
@@ -765,7 +754,9 @@ const html = String.raw`<!doctype html>
       const rows = works.length ? works.map(obra => {
         const certificates = projectCertificates(obra.id);
         const certified = certificates.reduce((sum, item) => sum + certificateTotal(item), 0);
-        const certifiedPct = number(obra.presupuesto) ? Math.round(certified / number(obra.presupuesto) * 100) : 0;
+        const certifiedPct = isOwner()
+          ? (number(obra.presupuesto) ? Math.round(certified / number(obra.presupuesto) * 100) : 0)
+          : number(obra.certificadoPorcentaje);
         const expenses = projectExpenses(obra.id).reduce((sum, item) => sum + number(item.monto), 0);
         const expectedSpend = number(obra.presupuesto) * certifiedPct / 100;
         const deviation = expenses - expectedSpend;
@@ -780,7 +771,7 @@ const html = String.raw`<!doctype html>
           '<div class="project-cost"><b>' + money(expenses) + '</b>' + costStatus + '</div>' +
           '<div class="actions"><button class="btn secondary small" type="button" data-open-project="' + escapeHtml(obra.id) + '">Seguimiento</button>' + (isOwner() ? '<button class="btn warn small" type="button" data-delete-project="' + escapeHtml(obra.id) + '">Eliminar</button>' : '') + '</div>' +
         '</article>';
-      }).join('') : '<div class="empty">No hay obras habilitadas para este usuario.</div>';
+      }).join('') : '<div class="empty">' + (isOwner() ? 'Todavia no hay obras. Crea la primera desde el formulario.' : 'No hay obras habilitadas para este usuario.') + '</div>';
       const budgetOptions = state.presupuestos.filter(item => !item.obraId).map(item => '<option value="' + escapeHtml(item.id) + '">' + escapeHtml(item.nombre) + ' · ' + money(budgetTotal(item)) + '</option>').join('');
       viewContent.innerHTML =
         '<div class="' + (isOwner() ? 'view-grid' : '') + '"><section class="panel"><div class="toolbar"><label>Filtrar por estado<select data-filter="project-status"><option value="">Todos</option><option>Planificacion</option><option>En obra</option><option>Pausada</option><option>Entrega</option><option>Finalizada</option></select></label><label>Buscar<input data-filter="project-search" placeholder="Obra o cliente"></label></div><div class="section-head"><div><h3>Cartera de obras</h3><p>' + (isOwner() ? 'Seguimiento económico, operativo y administrativo.' : 'Solo se muestran las obras habilitadas para tu usuario.') + '</p></div></div><div class="project-list" id="projectList">' + rows + '</div></section>' +
@@ -953,7 +944,9 @@ const html = String.raw`<!doctype html>
       const certificates = state.certificaciones.filter(item => item.obraId === id);
       const expenses = state.gastosObra.filter(item => item.obraId === id);
       const certifiedAmount = certificates.reduce((sum, item) => sum + certificateTotal(item), 0);
-      const certifiedPct = number(obra.presupuesto) ? Math.round(certifiedAmount / number(obra.presupuesto) * 100) : 0;
+      const certifiedPct = owner
+        ? (number(obra.presupuesto) ? Math.round(certifiedAmount / number(obra.presupuesto) * 100) : 0)
+        : number(obra.certificadoPorcentaje);
       const collectedAmount = certificates.filter(item => item.estado === 'Cobrada').reduce((sum, item) => sum + certificateTotal(item), 0);
       const expenseAmount = expenses.reduce((sum, item) => sum + number(item.monto), 0);
       const paidAmount = expenses.filter(item => item.estado === 'Pagado').reduce((sum, item) => sum + number(item.monto), 0);
@@ -1037,24 +1030,33 @@ const html = String.raw`<!doctype html>
     }));
     closeModal.addEventListener('click', () => authModal.style.display = 'none');
     authModal.addEventListener('click', event => { if (event.target === authModal) authModal.style.display = 'none'; });
-    authForm.addEventListener('submit', event => {
+    authForm.addEventListener('submit', async event => {
       event.preventDefault();
-      const loginEmail = email.value.trim().toLowerCase();
-      const usuario = state.usuarios.find(item => item.email === loginEmail && item.password === password.value && item.activo);
-      authError.classList.toggle('hidden', Boolean(usuario));
-      if (!usuario) return;
-      localStorage.setItem('gb-construction-user', usuario.email);
-      password.value = '';
-      authModal.style.display = 'none';
-      notify('Sesion iniciada');
-      openApp();
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: email.value.trim().toLowerCase(), password: password.value })
+        });
+        const payload = await response.json().catch(() => ({}));
+        authError.classList.toggle('hidden', response.ok);
+        if (!response.ok) return;
+        applyServerPayload(payload);
+        password.value = '';
+        authModal.style.display = 'none';
+        notify('Sesion iniciada');
+        openApp();
+      } catch {
+        authError.textContent = 'No se pudo conectar con Cloudflare D1.';
+        authError.classList.remove('hidden');
+      }
     });
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
       if (tab.disabled) return;
       current = tab.dataset.view;
       render();
     }));
-    viewContent.addEventListener('submit', event => {
+    viewContent.addEventListener('submit', async event => {
       event.preventDefault();
       const form = event.target;
       const formType = form.dataset.form;
@@ -1102,11 +1104,15 @@ const html = String.raw`<!doctype html>
         state.catalogos[scope][data.categoria] = state.catalogos[scope][data.categoria] || [];
         if (!state.catalogos[scope][data.categoria].includes(data.subcategoria)) state.catalogos[scope][data.categoria].push(data.subcategoria);
       }
-      save();
-      notify('Registro guardado');
-      render();
+      try {
+        await save();
+        notify('Registro guardado');
+        render();
+      } catch (error) {
+        notify(error.message);
+      }
     });
-    viewContent.addEventListener('click', event => {
+    viewContent.addEventListener('click', async event => {
       const target = event.target;
       const projectId = target.dataset.openProject;
       if (projectId) return renderProjectDetail(projectId);
@@ -1121,9 +1127,13 @@ const html = String.raw`<!doctype html>
         if (!isOwner()) return;
         const original = budgetById(duplicateBudget);
         state.presupuestos.push({ ...structuredClone(original), id: crypto.randomUUID(), nombre: original.nombre + ' (copia)', estado: 'Pendiente', obraId: '', items: original.items.map(item => ({ ...item, id: crypto.randomUUID() })) });
-        save();
-        notify('Presupuesto duplicado');
-        return render();
+        try {
+          await save();
+          notify('Presupuesto duplicado');
+          return render();
+        } catch (error) {
+          return notify(error.message);
+        }
       }
       const deleteProject = target.dataset.deleteProject;
       const deleteBudget = target.dataset.deleteBudget;
@@ -1156,9 +1166,13 @@ const html = String.raw`<!doctype html>
         }
         state.usuarios = state.usuarios.filter(item => item.id !== deleteUser);
       }
-      save();
-      notify('Registro eliminado');
-      render();
+      try {
+        await save();
+        notify('Registro eliminado');
+        render();
+      } catch (error) {
+        notify(error.message);
+      }
     });
     viewContent.addEventListener('change', event => {
       const target = event.target;
@@ -1229,7 +1243,7 @@ const html = String.raw`<!doctype html>
         });
       }
     }
-    detailContent.addEventListener('submit', event => {
+    detailContent.addEventListener('submit', async event => {
       event.preventDefault();
       const form = event.target;
       const formData = new FormData(form);
@@ -1297,18 +1311,21 @@ const html = String.raw`<!doctype html>
         usuario.activo = Boolean(formData.get('activo'));
         usuario.obraIds = data.tipo === 'Supervisor' ? formData.getAll('obraIds') : [];
         if (data.password) usuario.password = data.password;
-        if (editingCurrentUser) localStorage.setItem('gb-construction-user', usuario.email);
       }
-      save();
-      notify('Seguimiento actualizado');
-      configureNavigation();
-      if (projectDetail.dataset.userId && !isOwner()) return closeProjectDetail();
-      renderStats();
-      if (selectedProjectId) renderProjectDetail(selectedProjectId);
-      else if (projectDetail.dataset.personId) renderPersonDetail(projectDetail.dataset.personId);
-      else if (projectDetail.dataset.userId) renderUserDetail(projectDetail.dataset.userId);
+      try {
+        await save();
+        notify('Seguimiento actualizado');
+        configureNavigation();
+        if (projectDetail.dataset.userId && !isOwner()) return closeProjectDetail();
+        renderStats();
+        if (selectedProjectId) renderProjectDetail(selectedProjectId);
+        else if (projectDetail.dataset.personId) renderPersonDetail(projectDetail.dataset.personId);
+        else if (projectDetail.dataset.userId) renderUserDetail(projectDetail.dataset.userId);
+      } catch (error) {
+        notify(error.message);
+      }
     });
-    detailContent.addEventListener('click', event => {
+    detailContent.addEventListener('click', async event => {
       const certificateId = event.target.dataset.deleteCertificate;
       const expenseId = event.target.dataset.deleteExpense;
       const deleteBudgetItem = event.target.dataset.deleteBudgetItem;
@@ -1328,8 +1345,13 @@ const html = String.raw`<!doctype html>
         if (!isOwner()) return;
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
         presupuesto.items.push({ id: crypto.randomUUID(), certificado: '', tipo: 'Material', descripcion: '', cantidad: 1, unidad: 'unidad', precioUnitario: 0, dias: 0 });
-        save();
-        return renderBudgetDetail(presupuesto.id);
+        renderBudgetDetail(presupuesto.id);
+        try {
+          await save();
+        } catch (error) {
+          return notify(error.message);
+        }
+        return;
       }
       if (event.target.matches('[data-print-budget]') && isOwner()) return window.print();
       if (!certificateId && !expenseId && !deleteBudgetItem) return;
@@ -1341,10 +1363,14 @@ const html = String.raw`<!doctype html>
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
         presupuesto.items = presupuesto.items.filter(item => item.id !== deleteBudgetItem);
       }
-      save();
-      renderStats();
-      if (selectedProjectId) renderProjectDetail(selectedProjectId);
-      else if (projectDetail.dataset.budgetId) renderBudgetDetail(projectDetail.dataset.budgetId);
+      try {
+        await save();
+        renderStats();
+        if (selectedProjectId) renderProjectDetail(selectedProjectId);
+        else if (projectDetail.dataset.budgetId) renderBudgetDetail(projectDetail.dataset.budgetId);
+      } catch (error) {
+        notify(error.message);
+      }
     });
     detailContent.addEventListener('change', async event => {
       const target = event.target;
@@ -1354,7 +1380,7 @@ const html = String.raw`<!doctype html>
         const row = target.closest('[data-budget-item]');
         const item = presupuesto.items.find(value => value.id === row.dataset.budgetItem);
         item[target.dataset.budgetField] = target.type === 'number' ? number(target.value) : target.value;
-        save();
+        await save();
         const totalCell = row.querySelector('.sheet-total');
         if (totalCell) totalCell.textContent = money(budgetItemTotal(item));
         updateBudgetDetailSummary(presupuesto);
@@ -1364,7 +1390,7 @@ const html = String.raw`<!doctype html>
         if (!isOwner()) return;
         const presupuesto = budgetById(projectDetail.dataset.budgetId);
         presupuesto.estado = target.value;
-        save();
+        await save();
         notify('Estado del presupuesto actualizado');
         return renderBudgetDetail(presupuesto.id);
       }
@@ -1374,7 +1400,7 @@ const html = String.raw`<!doctype html>
         const obraId = target.dataset.personWork;
         if (target.checked && !persona.asignaciones.some(item => item.obraId === obraId)) persona.asignaciones.push({ obraId, tarea: '' });
         if (!target.checked) persona.asignaciones = persona.asignaciones.filter(item => item.obraId !== obraId);
-        save();
+        await save();
         return renderPersonDetail(persona.id);
       }
       if (target.matches('[data-person-task]')) {
@@ -1382,7 +1408,7 @@ const html = String.raw`<!doctype html>
         const persona = state.equipo.find(item => item.id === projectDetail.dataset.personId);
         const assignment = persona.asignaciones.find(item => item.obraId === target.dataset.personTask);
         if (assignment) assignment.tarea = target.value;
-        save();
+        await save();
       }
       if (target.matches('[data-certificate-status]')) {
         if (!isOwner()) return;
@@ -1392,7 +1418,7 @@ const html = String.raw`<!doctype html>
         const approved = await askConfirm("Estas por cambiar el estado de esta certificacion de '" + previous + "' a '" + next + "'. Confirmas esta accion?");
         if (approved) {
           item.estado = next;
-          save();
+          await save();
           notify('Estado de certificacion actualizado');
         } else target.value = previous;
         return renderProjectDetail(selectedProjectId);
@@ -1404,7 +1430,7 @@ const html = String.raw`<!doctype html>
         const approved = await askConfirm("Estas por cambiar el estado de este gasto de '" + previous + "' a '" + next + "'. Confirmas esta accion?");
         if (approved) {
           item.estado = next;
-          save();
+          await save();
           notify('Estado de gasto actualizado');
         } else target.value = previous;
         return renderProjectDetail(selectedProjectId);
@@ -1450,16 +1476,509 @@ const html = String.raw`<!doctype html>
     closeDetail.addEventListener('click', closeProjectDetail);
     projectDetail.addEventListener('click', event => { if (event.target === projectDetail) closeProjectDetail(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && projectDetail.classList.contains('open')) closeProjectDetail(); });
-    logout.addEventListener('click', () => { localStorage.removeItem('gb-construction-user'); localStorage.removeItem('brikr-user'); app.style.display = 'none'; site.style.display = 'block'; });
-    if (currentUser()) openApp();
-    else localStorage.removeItem('gb-construction-user');
+    logout.addEventListener('click', async () => {
+      await fetch('/api/logout', { method: 'POST' }).catch(() => {});
+      sessionUser = null;
+      state = structuredClone(seed);
+      app.style.display = 'none';
+      site.style.display = 'block';
+    });
+    const bootstrap = async () => {
+      try {
+        const response = await fetch('/api/session', { headers: { accept: 'application/json' } });
+        const payload = await response.json();
+        if (!payload.authenticated) return;
+        applyServerPayload(payload);
+        openApp();
+      } catch {
+        sessionUser = null;
+      }
+    };
+    bootstrap();
   </script>
 </body>
 </html>`;
 
+type JsonRecord = Record<string, unknown>;
+
+interface AppData {
+  obras: JsonRecord[];
+  presupuestos: JsonRecord[];
+  certificaciones: JsonRecord[];
+  gastosObra: JsonRecord[];
+  finanzasEstudio: JsonRecord[];
+  equipo: JsonRecord[];
+  catalogos: Record<string, Record<string, string[]>>;
+}
+
+interface PublicUser {
+  id: string;
+  nombre: string;
+  email: string;
+  tipo: "Propietario" | "Supervisor";
+  activo: boolean;
+  obraIds: string[];
+  password?: string;
+}
+
+interface UserRow {
+  id: string;
+  name: string;
+  email: string;
+  password_salt: string;
+  password_hash: string;
+  password_iterations: number;
+  role: "Propietario" | "Supervisor";
+  active: number;
+  obra_ids_json: string;
+}
+
+interface SessionUser extends PublicUser {
+  tokenHash: string;
+}
+
+interface ClientState extends AppData {
+  usuarios: PublicUser[];
+}
+
+const defaultAppData: AppData = {
+  obras: [],
+  presupuestos: [],
+  certificaciones: [],
+  gastosObra: [],
+  finanzasEstudio: [],
+  equipo: [],
+  catalogos: {
+    obra: {
+      Materiales: ["Cemento y aridos", "Hierro y estructura", "Ladrillos, bloques y mamposteria", "Instalaciones electricas", "Instalaciones sanitarias", "Revestimientos", "Pintura", "Aberturas", "Equipamiento", "Otros materiales"],
+      "Mano de obra": ["Albanileria", "Electricidad", "Plomeria", "Pintura", "Carpinteria", "Herreria", "Direccion de obra", "Contratistas externos", "Jornales", "Otros"],
+      "Servicios y alquileres": ["Alquiler de maquinaria", "Fletes", "Volquetes", "Servicios tercerizados", "Seguridad e higiene", "Otros servicios"],
+      "Administracion de obra": ["Permisos", "Tasas", "Honorarios", "Documentacion tecnica", "Imprevistos", "Otros administrativos"],
+    },
+    estudio: {
+      Administracion: ["Alquiler", "Servicios", "Internet y telefonia", "Software", "Papeleria", "Gestion contable", "Impuestos", "Otros"],
+      Personal: ["Sueldos", "Honorarios", "Cargas sociales", "Bonos", "Viaticos", "Capacitaciones"],
+      Comercial: ["Publicidad", "Marketing", "Reuniones comerciales", "Comisiones", "Diseno y comunicacion"],
+      "Operacion general": ["Movilidad", "Mantenimiento", "Equipamiento", "Compras internas", "Otros"],
+    },
+  },
+};
+
+const jsonResponse = (data: unknown, status = 200, headers: HeadersInit = {}): Response =>
+  Response.json(data, {
+    status,
+    headers: {
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
+      ...headers,
+    },
+  });
+
+const parseStringArray = (value: string): string[] => {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+};
+
+const publicUser = (row: UserRow): PublicUser => ({
+  id: row.id,
+  nombre: row.name,
+  email: row.email,
+  tipo: row.role,
+  activo: row.active === 1,
+  obraIds: parseStringArray(row.obra_ids_json),
+});
+
+const bytesToBase64Url = (bytes: Uint8Array): string => {
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "");
+};
+
+const base64UrlToBytes = (value: string): Uint8Array => {
+  const normalized = value.replaceAll("-", "+").replaceAll("_", "/");
+  const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+};
+
+const sha256 = async (value: string): Promise<string> => {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return bytesToBase64Url(new Uint8Array(digest));
+};
+
+const derivePassword = async (password: string, salt: string, iterations: number): Promise<string> => {
+  const saltBytes = base64UrlToBytes(salt);
+  const saltBuffer = saltBytes.buffer.slice(
+    saltBytes.byteOffset,
+    saltBytes.byteOffset + saltBytes.byteLength,
+  ) as ArrayBuffer;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: saltBuffer,
+      iterations,
+    },
+    key,
+    256,
+  );
+  return bytesToBase64Url(new Uint8Array(bits));
+};
+
+const secureEqual = (left: string, right: string): boolean => {
+  const leftBytes = new TextEncoder().encode(left);
+  const rightBytes = new TextEncoder().encode(right);
+  if (leftBytes.length !== rightBytes.length) return false;
+  let difference = 0;
+  for (let index = 0; index < leftBytes.length; index += 1) {
+    difference |= leftBytes[index] ^ rightBytes[index];
+  }
+  return difference === 0;
+};
+
+const cookieValue = (request: Request, name: string): string | null => {
+  const cookie = request.headers.get("cookie") || "";
+  for (const part of cookie.split(";")) {
+    const [key, ...value] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(value.join("="));
+  }
+  return null;
+};
+
+const sameOrigin = (request: Request): boolean => {
+  const origin = request.headers.get("origin");
+  return !origin || origin === new URL(request.url).origin;
+};
+
+const requireJson = async <T>(request: Request): Promise<T> => {
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > 2_000_000) throw new Error("Solicitud demasiado grande");
+  if (!request.headers.get("content-type")?.includes("application/json")) throw new Error("Se requiere JSON");
+  return request.json<T>();
+};
+
+const readAppData = async (db: D1Database): Promise<AppData> => {
+  const row = await db.prepare("SELECT data_json FROM app_state WHERE id = 1").first<{ data_json: string }>();
+  if (!row) {
+    await db.prepare("INSERT INTO app_state (id, data_json) VALUES (1, ?)").bind(JSON.stringify(defaultAppData)).run();
+    return structuredClone(defaultAppData);
+  }
+  try {
+    const parsed = JSON.parse(row.data_json) as Partial<AppData>;
+    return {
+      obras: Array.isArray(parsed.obras) ? parsed.obras : [],
+      presupuestos: Array.isArray(parsed.presupuestos) ? parsed.presupuestos : [],
+      certificaciones: Array.isArray(parsed.certificaciones) ? parsed.certificaciones : [],
+      gastosObra: Array.isArray(parsed.gastosObra) ? parsed.gastosObra : [],
+      finanzasEstudio: Array.isArray(parsed.finanzasEstudio) ? parsed.finanzasEstudio : [],
+      equipo: Array.isArray(parsed.equipo) ? parsed.equipo : [],
+      catalogos: parsed.catalogos || structuredClone(defaultAppData.catalogos),
+    };
+  } catch {
+    return structuredClone(defaultAppData);
+  }
+};
+
+const readUsers = async (db: D1Database): Promise<UserRow[]> => {
+  const result = await db.prepare("SELECT * FROM users ORDER BY created_at, name").all<UserRow>();
+  return result.results;
+};
+
+const getSessionUser = async (request: Request, env: Env): Promise<SessionUser | null> => {
+  const token = cookieValue(request, "gb_session");
+  if (!token) return null;
+  const tokenHash = await sha256(token);
+  const row = await env.DB.prepare(
+    `SELECT u.*
+     FROM sessions s
+     JOIN users u ON u.id = s.user_id
+     WHERE s.token_hash = ? AND s.expires_at > unixepoch() AND u.active = 1`,
+  ).bind(tokenHash).first<UserRow>();
+  return row ? { ...publicUser(row), tokenHash } : null;
+};
+
+const numberValue = (value: unknown): number => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const recordString = (record: JsonRecord, key: string): string =>
+  typeof record[key] === "string" ? record[key] : "";
+
+const certificateAmount = (certificate: JsonRecord): number => {
+  const subitems = certificate.subitems;
+  if (!Array.isArray(subitems)) return numberValue(certificate.monto);
+  return subitems.reduce((total, subitem) => {
+    if (!subitem || typeof subitem !== "object") return total;
+    const item = subitem as JsonRecord;
+    return total + numberValue(item.cantidad) * numberValue(item.precioUnitario);
+  }, 0);
+};
+
+const filteredState = (data: AppData, users: UserRow[], user: PublicUser): ClientState => {
+  if (user.tipo === "Propietario") {
+    return { ...structuredClone(data), usuarios: users.map(publicUser) };
+  }
+  const allowed = new Set(user.obraIds);
+  const visibleCertificates = data.certificaciones.filter((item) => allowed.has(recordString(item, "obraId")));
+  const visibleObras = data.obras
+    .filter((item) => allowed.has(recordString(item, "id")))
+    .map((obra) => {
+      const id = recordString(obra, "id");
+      const certified = visibleCertificates
+        .filter((item) => recordString(item, "obraId") === id)
+        .reduce((sum, item) => sum + certificateAmount(item), 0);
+      const quoted = numberValue(obra.presupuesto);
+      return {
+        ...obra,
+        presupuesto: 0,
+        presupuestoId: "",
+        certificadoPorcentaje: quoted ? Math.round(certified / quoted * 100) : 0,
+      };
+    });
+  return {
+    obras: visibleObras,
+    presupuestos: [],
+    certificaciones: visibleCertificates,
+    gastosObra: data.gastosObra
+      .filter((item) => allowed.has(recordString(item, "obraId")))
+      .map((item) => ({ ...item, presupuestado: false, presupuestoItemId: "" })),
+    finanzasEstudio: [],
+    equipo: data.equipo
+      .filter((person) => Array.isArray(person.asignaciones) && person.asignaciones.some((assignment) => {
+        if (!assignment || typeof assignment !== "object") return false;
+        return allowed.has(recordString(assignment as JsonRecord, "obraId"));
+      }))
+      .map((person) => ({
+        ...person,
+        asignaciones: Array.isArray(person.asignaciones)
+          ? person.asignaciones.filter((assignment) => {
+              if (!assignment || typeof assignment !== "object") return false;
+              return allowed.has(recordString(assignment as JsonRecord, "obraId"));
+            })
+          : [],
+      })),
+    catalogos: structuredClone(data.catalogos),
+    usuarios: [user],
+  };
+};
+
+const payloadFor = async (env: Env, user: PublicUser): Promise<{ state: ClientState; currentUser: PublicUser }> => {
+  const [data, users] = await Promise.all([readAppData(env.DB), readUsers(env.DB)]);
+  const current = users.find((item) => item.id === user.id);
+  if (!current || current.active !== 1) throw new Error("Sesion invalida");
+  const safeUser = publicUser(current);
+  return { state: filteredState(data, users, safeUser), currentUser: safeUser };
+};
+
+const appDataFromClient = (state: ClientState): AppData => ({
+  obras: Array.isArray(state.obras) ? state.obras : [],
+  presupuestos: Array.isArray(state.presupuestos) ? state.presupuestos : [],
+  certificaciones: Array.isArray(state.certificaciones) ? state.certificaciones : [],
+  gastosObra: Array.isArray(state.gastosObra) ? state.gastosObra : [],
+  finanzasEstudio: Array.isArray(state.finanzasEstudio) ? state.finanzasEstudio : [],
+  equipo: Array.isArray(state.equipo) ? state.equipo : [],
+  catalogos: state.catalogos || structuredClone(defaultAppData.catalogos),
+});
+
+const validateUsers = (users: PublicUser[], currentUserId: string): void => {
+  if (!users.length || !users.some((user) => user.tipo === "Propietario" && user.activo)) {
+    throw new Error("Debe existir al menos un propietario activo");
+  }
+  if (!users.some((user) => user.id === currentUserId && user.activo)) {
+    throw new Error("No puedes eliminar o desactivar tu propia cuenta");
+  }
+  const emails = new Set<string>();
+  for (const user of users) {
+    user.email = user.email.trim().toLowerCase();
+    if (!user.id || !user.nombre.trim() || !user.email || !user.email.includes("@")) throw new Error("Usuario invalido");
+    if (emails.has(user.email)) throw new Error("Ya existe un usuario con ese email");
+    emails.add(user.email);
+  }
+};
+
+const saveOwnerState = async (env: Env, sessionUser: SessionUser, incoming: ClientState): Promise<void> => {
+  const users = Array.isArray(incoming.usuarios) ? incoming.usuarios : [];
+  validateUsers(users, sessionUser.id);
+  const existingRows = await readUsers(env.DB);
+  const existing = new Map(existingRows.map((row) => [row.id, row]));
+  const statements: D1PreparedStatement[] = [
+    env.DB.prepare(
+      "UPDATE app_state SET data_json = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+    ).bind(JSON.stringify(appDataFromClient(incoming))),
+  ];
+  for (const user of users) {
+    const previous = existing.get(user.id);
+    let salt = previous?.password_salt || "";
+    let hash = previous?.password_hash || "";
+    const iterations = previous?.password_iterations || 100000;
+    if (user.password) {
+      salt = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(16)));
+      hash = await derivePassword(user.password, salt, iterations);
+    }
+    if (!salt || !hash) throw new Error(`La contrasena es obligatoria para ${user.email}`);
+    statements.push(
+      env.DB.prepare(
+        `INSERT INTO users (id, name, email, password_salt, password_hash, password_iterations, role, active, obra_ids_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           name = excluded.name,
+           email = excluded.email,
+           password_salt = excluded.password_salt,
+           password_hash = excluded.password_hash,
+           password_iterations = excluded.password_iterations,
+           role = excluded.role,
+           active = excluded.active,
+           obra_ids_json = excluded.obra_ids_json,
+           updated_at = CURRENT_TIMESTAMP`,
+      ).bind(
+        user.id,
+        user.nombre.trim(),
+        user.email,
+        salt,
+        hash,
+        iterations,
+        user.tipo,
+        user.activo ? 1 : 0,
+        JSON.stringify(user.tipo === "Supervisor" ? user.obraIds : []),
+      ),
+    );
+  }
+  const userIds = users.map((user) => user.id);
+  statements.push(
+    env.DB.prepare(`DELETE FROM users WHERE id NOT IN (${userIds.map(() => "?").join(", ")})`).bind(...userIds),
+  );
+  await env.DB.batch(statements);
+};
+
+const saveSupervisorState = async (env: Env, user: SessionUser, incoming: ClientState): Promise<void> => {
+  const data = await readAppData(env.DB);
+  const allowed = new Set(user.obraIds);
+  const existingCertificates = new Set(data.certificaciones.map((item) => recordString(item, "id")));
+  for (const certificate of incoming.certificaciones || []) {
+    const id = recordString(certificate, "id");
+    const obraId = recordString(certificate, "obraId");
+    if (!id || existingCertificates.has(id) || !allowed.has(obraId)) continue;
+    data.certificaciones.push({
+      ...certificate,
+      estado: "Pendiente de aprobacion",
+      creadoPor: user.id,
+    });
+    existingCertificates.add(id);
+  }
+  const incomingExpenses = new Map((incoming.gastosObra || []).map((item) => [recordString(item, "id"), item]));
+  data.gastosObra = data.gastosObra.map((expense) => {
+    const id = recordString(expense, "id");
+    const obraId = recordString(expense, "obraId");
+    const proposed = incomingExpenses.get(id);
+    if (!proposed || !allowed.has(obraId)) return expense;
+    const status = recordString(proposed, "estado");
+    return { ...expense, estado: status === "Pagado" ? "Pagado" : "Pendiente de pago" };
+  });
+  const existingExpenses = new Set(data.gastosObra.map((item) => recordString(item, "id")));
+  for (const expense of incoming.gastosObra || []) {
+    const id = recordString(expense, "id");
+    const obraId = recordString(expense, "obraId");
+    if (!id || existingExpenses.has(id) || !allowed.has(obraId)) continue;
+    data.gastosObra.push({
+      ...expense,
+      estado: recordString(expense, "estado") === "Pagado" ? "Pagado" : "Pendiente de pago",
+      presupuestado: false,
+      presupuestoItemId: "",
+      creadoPor: user.id,
+    });
+    existingExpenses.add(id);
+  }
+  await env.DB.prepare(
+    "UPDATE app_state SET data_json = ?, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+  ).bind(JSON.stringify(data)).run();
+};
+
+const handleApi = async (request: Request, env: Env): Promise<Response> => {
+  const url = new URL(request.url);
+  if (!sameOrigin(request)) return jsonResponse({ error: "Origen no permitido" }, 403);
+
+  if (url.pathname === "/api/login" && request.method === "POST") {
+    let credentials: { email?: string; password?: string };
+    try {
+      credentials = await requireJson(request);
+    } catch (error) {
+      return jsonResponse({ error: error instanceof Error ? error.message : "Solicitud invalida" }, 400);
+    }
+    const email = String(credentials.email || "").trim().toLowerCase();
+    const row = await env.DB.prepare("SELECT * FROM users WHERE email = ? AND active = 1")
+      .bind(email)
+      .first<UserRow>();
+    if (!row || !credentials.password) return jsonResponse({ error: "Email o contrasena incorrectos" }, 401);
+    const candidate = await derivePassword(credentials.password, row.password_salt, row.password_iterations);
+    if (!secureEqual(candidate, row.password_hash)) return jsonResponse({ error: "Email o contrasena incorrectos" }, 401);
+
+    const token = bytesToBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+    const tokenHash = await sha256(token);
+    const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM sessions WHERE expires_at <= unixepoch()"),
+      env.DB.prepare("INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, ?)")
+        .bind(tokenHash, row.id, expiresAt),
+    ]);
+    const secure = url.protocol === "https:" ? "; Secure" : "";
+    return jsonResponse(await payloadFor(env, publicUser(row)), 200, {
+      "set-cookie": `gb_session=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800${secure}`,
+    });
+  }
+
+  if (url.pathname === "/api/logout" && request.method === "POST") {
+    const token = cookieValue(request, "gb_session");
+    if (token) await env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?").bind(await sha256(token)).run();
+    const secure = url.protocol === "https:" ? "; Secure" : "";
+    return jsonResponse({ ok: true }, 200, {
+      "set-cookie": `gb_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`,
+    });
+  }
+
+  const user = await getSessionUser(request, env);
+  if (url.pathname === "/api/session" && request.method === "GET") {
+    if (!user) return jsonResponse({ authenticated: false });
+    return jsonResponse({ authenticated: true, ...await payloadFor(env, user) });
+  }
+  if (!user) return jsonResponse({ error: "Sesion requerida" }, 401);
+
+  if (url.pathname === "/api/state" && request.method === "GET") {
+    return jsonResponse(await payloadFor(env, user));
+  }
+
+  if (url.pathname === "/api/state" && request.method === "PUT") {
+    let body: { state?: ClientState };
+    try {
+      body = await requireJson(request);
+      if (!body.state || typeof body.state !== "object") throw new Error("Estado invalido");
+      if (user.tipo === "Propietario") await saveOwnerState(env, user, body.state);
+      else await saveSupervisorState(env, user, body.state);
+      return jsonResponse(await payloadFor(env, user));
+    } catch (error) {
+      console.error(JSON.stringify({ event: "state_save_failed", userId: user.id, error: String(error) }));
+      return jsonResponse({ error: error instanceof Error ? error.message : "No se pudo guardar" }, 400);
+    }
+  }
+
+  return jsonResponse({ error: "Ruta no encontrada" }, 404);
+};
+
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    if (url.pathname.startsWith("/api/")) return handleApi(request, env);
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method not allowed", {
         status: 405,

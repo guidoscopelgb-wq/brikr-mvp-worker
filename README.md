@@ -18,7 +18,9 @@ Produccion: https://gb-construction-assistant.guidoscopel-gb.workers.dev
 - Rol Propietario con acceso total.
 - Rol Supervisor con acceso limitado a las obras habilitadas, carga de gastos,
   certificaciones pendientes de aprobacion y consulta del equipo asignado.
-- Persistencia local en el navegador con `localStorage`.
+- Persistencia centralizada en Cloudflare D1.
+- Sesiones `HttpOnly` y permisos validados por la API del Worker.
+- Contrasenas derivadas con PBKDF2 antes de almacenarse.
 
 ## Acceso MVP
 
@@ -31,6 +33,7 @@ Los usuarios adicionales se crean desde el modulo `Usuarios`.
 
 ```bash
 npm install
+npx wrangler d1 migrations apply DB --local
 npm run dev
 ```
 
@@ -47,11 +50,13 @@ python scripts/visual_check.py
 ## Deploy
 
 ```bash
+npx wrangler d1 migrations apply DB --remote
 npm run deploy
 ```
 
 ## Alcance de seguridad
 
-Este MVP guarda datos, usuarios y contrasenas en el almacenamiento local del
-navegador. Para un uso productivo multiusuario se requiere autenticacion del
-lado servidor, base de datos y control de permisos en la API.
+Los datos y usuarios se guardan en Cloudflare D1. La autenticacion, las sesiones
+y las restricciones de Propietario y Supervisor se validan en el Worker. Para
+operacion productiva se recomienda rotar la clave inicial, definir una politica
+de copias de seguridad y revisar periodicamente los usuarios activos.

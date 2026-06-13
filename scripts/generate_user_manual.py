@@ -312,10 +312,10 @@ story.extend(
         Spacer(1, 5 * mm),
         callout(
             "Persistencia de datos",
-            "La version MVP guarda la informacion en el almacenamiento local del navegador. Use siempre el mismo navegador y perfil. "
-            "Borrar los datos del sitio, usar modo privado o cambiar de dispositivo puede dejar la informacion cargada fuera de alcance.",
-            RED_SOFT,
-            colors.HexColor("#A43D35"),
+            "La informacion se guarda de forma centralizada en Cloudflare D1. Puede ingresar desde distintos dispositivos con su usuario habilitado. "
+            "Los permisos se aplican en el servidor segun el rol y las obras asignadas.",
+            BLUE_SOFT,
+            colors.HexColor("#315F83"),
         ),
         Spacer(1, 7 * mm),
         p("<b>Lectura rapida del dashboard</b>", "SubTitle"),
@@ -632,8 +632,8 @@ story.extend(
         Spacer(1, 7 * mm),
         callout(
             "Respaldo y alcance del MVP",
-            "La informacion, los usuarios y las contrasenas se guardan localmente en el navegador. "
-            "Los roles controlan la interfaz del MVP, pero para uso productivo se requiere una base de datos, autenticacion del lado servidor, permisos en la API y copias de seguridad.",
+            "La informacion y los usuarios se guardan en Cloudflare D1. Las sesiones usan cookies seguras y los permisos se validan en la API del Worker. "
+            "Para operacion productiva se recomienda cambiar la clave inicial, revisar usuarios activos y mantener una politica de copias de seguridad.",
             RED_SOFT,
             colors.HexColor("#A43D35"),
         ),

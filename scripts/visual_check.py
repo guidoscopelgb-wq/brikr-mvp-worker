@@ -26,6 +26,12 @@ with sync_playwright() as p:
     page.get_by_label("Contrasena").fill("GB2026")
     page.get_by_role("button", name="Entrar al dashboard").click()
     expect(page.get_by_role("heading", name="Obras", exact=True)).to_be_visible()
+    initial_state = page.evaluate("fetch('/api/state').then(response => response.json()).then(payload => payload.state)")
+    for collection in ["obras", "presupuestos", "certificaciones", "gastosObra", "finanzasEstudio", "equipo"]:
+        assert initial_state[collection] == [], f"{collection} should start empty"
+    assert len(initial_state["usuarios"]) == 1
+    assert initial_state["usuarios"][0]["email"] == "test@test"
+    assert page.evaluate("localStorage.length") == 0
 
     # Presupuesto editable.
     page.get_by_role("button", name="Presupuestos").click()
@@ -134,13 +140,14 @@ with sync_playwright() as p:
     person = page.locator('form[data-form="person"]')
     person.get_by_label("Nombre").fill("Laura Gomez")
     person.get_by_label("Rol").fill("Directora de obra")
-    person.get_by_label("Torre Belgrano").check()
+    person.get_by_label("Centro Medico").check()
     person.get_by_role("button", name="Guardar integrante").click()
     row = page.locator("tr").filter(has_text="Laura Gomez")
     row.get_by_role("button", name="Editar").click()
-    page.locator('[data-person-task="obra-torre"]').fill("Control de certificacion")
-    page.locator('[data-person-task="obra-torre"]').press("Tab")
-    assert page.locator('[data-person-task="obra-torre"]').input_value() == "Control de certificacion"
+    task_input = page.locator("[data-person-task]").first
+    task_input.fill("Control de certificacion")
+    task_input.press("Tab")
+    assert task_input.input_value() == "Control de certificacion"
     page.screenshot(path=str(artifacts / "gb-team-tasks.png"), full_page=True)
     page.get_by_role("button", name="Cerrar", exact=True).click()
 
@@ -189,19 +196,22 @@ with sync_playwright() as p:
     page.screenshot(path=str(artifacts / "gb-supervisor-project.png"), full_page=True)
     page.get_by_role("button", name="Cerrar", exact=True).click()
     page.get_by_role("button", name="Equipo").click()
-    expect(page.get_by_text("Solo lectura")).to_be_visible()
+    expect(page.get_by_text("Solo lectura", exact=True)).to_be_visible()
     expect(page.get_by_role("button", name="Editar")).to_have_count(0)
     expect(page.get_by_role("button", name="Guardar integrante")).to_have_count(0)
 
     mobile = browser.new_page(viewport={"width": 390, "height": 844}, is_mobile=True)
     mobile.goto("http://127.0.0.1:8792", wait_until="domcontentloaded")
     mobile.wait_for_load_state("load")
-    mobile.evaluate("localStorage.setItem('gb-construction-user', 'test@test')")
-    mobile.reload(wait_until="load")
+    mobile.get_by_role("button", name="Iniciar sesion", exact=True).first.click()
+    mobile.get_by_label("Email").fill("test@test")
+    mobile.get_by_label("Contrasena").fill("GB2026")
+    mobile.get_by_role("button", name="Entrar al dashboard").click()
     expect(mobile.get_by_role("heading", name="Obras", exact=True)).to_be_visible()
     mobile.screenshot(path=str(artifacts / "gb-integral-mobile.png"), full_page=True)
 
-    assert not console_errors, "Browser errors: " + " | ".join(console_errors)
+    unexpected_errors = [message for message in console_errors if "401 (Unauthorized)" not in message]
+    assert not unexpected_errors, "Browser errors: " + " | ".join(unexpected_errors)
     browser.close()
 
 print("Expanded workflow check passed")

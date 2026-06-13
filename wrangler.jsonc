@@ -2,8 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gb-construction-assistant",
   "main": "src/index.ts",
-  "compatibility_date": "2026-05-14",
+  "compatibility_date": "2026-06-12",
   "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gb-construction-assistant-db",
+      "database_id": "e54e3447-20fa-472c-af13-8387f4d619d8",
+      "migrations_dir": "migrations"
+    }
+  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
